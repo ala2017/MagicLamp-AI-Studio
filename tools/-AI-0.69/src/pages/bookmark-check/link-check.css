@@ -1,0 +1,611 @@
+/* 主容器样式 */
+.check-container {
+    max-width: 1200px;
+    width: 90%;
+    margin: 0 auto;
+    padding: 30px 20px;
+    color: var(--text-primary);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: calc(100vh - 64px - 50px); /* 减去头部和底部的高度 */
+    box-sizing: border-box;
+}
+
+.check-container h2 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+    font-weight: 600;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.check-container .description {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1.5;
+    max-width: 800px;
+}
+
+/* 控制按钮区域 */
+.check-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.check-controls button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 10px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    color: white;
+    font-size: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.check-controls button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.check-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.check-controls button.btn-check {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    min-width: 140px;
+}
+
+.btn-stop {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    min-width: 120px;
+}
+
+.btn-resume {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    min-width: 120px;
+}
+
+.btn-restart {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    min-width: 140px;
+}
+
+/* 检查状态区域 */
+.check-status-container {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 15px 0;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.progress-inner {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #059669);
+    width: 0%;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+}
+
+.progress-text {
+    display: flex;
+    justify-content: space-between;
+    font-size: 15px;
+    color: var(--text-secondary);
+    margin-top: 12px;
+}
+
+.current-url {
+    font-family: monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+    color: var(--text-primary);
+    padding: 4px 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stats {
+    white-space: nowrap;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 检查结果区域 */
+.check-results {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    transition: padding-top 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    min-height: 300px;
+}
+
+.check-results h3 {
+    position: sticky;
+    top: 0;
+    background: var(--bg-primary);
+    padding: 10px 0;
+    margin-top: 0;
+    margin-bottom: 16px;
+    z-index: 10;
+    transition: all 0.3s ease;
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.check-results::-webkit-scrollbar {
+    width: 10px;
+}
+
+.check-results::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 5px;
+}
+
+.check-results::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.check-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+
+.check-tip {
+    font-size: 13px;
+    font-weight: normal;
+    color: var(--text-secondary);
+    padding: 4px 10px;
+    background: rgba(245, 158, 11, 0.1);
+    border-radius: 6px;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    white-space: nowrap;
+}
+
+.check-results.scrolling h3 {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.check-results-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+/* 结果项样式 */
+.result-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.result-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.result-url {
+    flex: 1;
+    overflow: hidden;
+    margin-right: 15px;
+}
+
+.result-url a {
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    display: block;
+    padding: 2px 0;
+}
+
+.result-url a:hover {
+    color: var(--primary);
+}
+
+.result-status {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-right: 15px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.status-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.status-error {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.status-warning, .status-auth {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.status-timeout {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.status-unknown {
+    background: rgba(156, 163, 175, 0.1);
+    color: #9ca3af;
+    border: 1px solid rgba(156, 163, 175, 0.2);
+}
+
+/* 操作按钮 */
+.result-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.result-actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+}
+
+.result-actions button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    transform: translateY(-2px);
+}
+
+.btn-delete {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.1) !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+    padding: 6px 12px !important;
+    font-size: 13px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.1) !important;
+}
+
+.btn-delete:hover {
+    background: rgba(239, 68, 68, 0.2) !important;
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.15) !important;
+}
+
+.btn-delete svg {
+    width: 16px;
+    height: 16px;
+}
+
+.check-status {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 10px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.check-status.info {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.check-status.warning {
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.check-status.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.check-status.success {
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+/* 域名信息 */
+.domain-info {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 2px 8px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 4px;
+    width: fit-content;
+}
+
+.bookmark-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 6px;
+    font-size: 16px;
+}
+
+.no-issues-message {
+    text-align: center;
+    padding: 60px 0;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+    justify-content: center;
+}
+
+.success-icon {
+    font-size: 60px;
+    color: #10b981;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.no-issues-message p {
+    font-size: 18px;
+    max-width: 500px;
+    line-height: 1.6;
+}
+
+/* 介绍部分 */
+.intro-section {
+    margin-bottom: 8px;
+}
+
+/* 检查控制部分 */
+.check-controls-section {
+    margin-bottom: 8px;
+}
+
+@media (max-width: 768px) {
+    .check-container {
+        padding: 20px 15px;
+        width: 95%;
+    }
+    
+    .check-results {
+        padding: 15px;
+        min-height: 250px;
+    }
+    
+    .check-results h3 {
+        font-size: 1.1rem;
+    }
+    
+    .result-item {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 12px;
+    }
+    
+    .result-url {
+        margin-bottom: 12px;
+        width: 100%;
+    }
+    
+    .result-status {
+        margin-bottom: 12px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .result-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
+    .check-controls {
+        flex-direction: column;
+    }
+    
+    .check-controls button {
+        width: 100%;
+    }
+    
+    .check-container h2 {
+        font-size: 1.5rem;
+    }
+    
+    .check-container .description {
+        font-size: 0.9rem;
+    }
+}
+
+.main {
+    padding-top: 64px;
+    min-height: calc(100vh - 50px);
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-primary);
+}
+
+.footer {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.copyright {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* 删除状态样式 */
+.result-item.deleted {
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    opacity: 0.7;
+}
+
+.result-item.deleted .result-status {
+    opacity: 0.5;
+}
+
+.result-url a.deleted {
+    color: var(--text-secondary);
+    text-decoration: line-through;
+    position: relative;
+    opacity: 0.7;
+}
+
+.result-url a.deleted::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 0;
+    height: 1px;
+    background-color: var(--text-secondary);
+    animation: strikethrough 0.5s ease-in-out forwards;
+}
+
+.btn-delete:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+    background: rgba(156, 163, 175, 0.1) !important;
+    border: 1px solid rgba(156, 163, 175, 0.2) !important;
+    color: #9ca3af !important;
+}
+
+.deleted-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 10px;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.result-item.deleted .deleted-tag {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.result-item.deleted .btn-delete {
+    display: none;
+}
+
+.btn-delete svg {
+    transition: all 0.2s ease;
+}
+
+.result-item.deleted .btn-delete svg {
+    transform: rotate(90deg);
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes strikethrough {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}
+
+/* 确保导航栏组件样式不影响链接检查页面 */
+.header, .brand, .brand h1, .version, .actions, .actions .btn, .actions .btn:hover, .actions .btn .icon {
+    all: revert;
+} 

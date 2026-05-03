@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神灯智库·灵魂复兴引擎V1.0</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/diff_match_patch/20121119/diff_match_patch.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.25.0"
+  }
+}
+</script>
+</head>
+<body>
+    <div id="app">
+        <header>
+            <img src="https://i.postimg.cc/3rSwd9fY/logo.jpg" alt="神灯智库 Logo" class="header-logo">
+            <div class="header-text">
+                <h1>神灯智库·灵魂复兴引擎 V1.0</h1>
+                <p class="producer">出品人：神灯智库·天火义王</p>
+            </div>
+        </header>
+
+        <main class="comparison-container">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>“灵魂复兴者”模式</h2>
+                    <p>由“灵魂复兴者”AI协作引擎 V1.0 指令集驱动</p>
+                </div>
+                <div id="soul-reviver-output" class="output-content" aria-live="polite">
+                    <div class="placeholder">Awaiting your prompt to begin the journey...</div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>默认模式</h2>
+                    <p>标准模型输出，未经特殊指令集调整</p>
+                </div>
+                <div id="default-output" class="output-content" aria-live="polite">
+                     <div class="placeholder">Awaiting your prompt to see the standard path...</div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="input-area">
+                <div class="settings">
+                    <label for="model-name-trigger">Model:</label>
+                    <div id="custom-model-select" class="custom-select-container">
+                        <div id="model-name-trigger" class="custom-select-trigger" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false">
+                            <span id="selected-model-text">Gemini 2.5 Pro</span>
+                            <span class="arrow"></span>
+                        </div>
+                        <ul id="model-name-options" class="custom-select-options" role="listbox">
+                            <li class="custom-select-option" data-value="gemini-2.5-flash" role="option">Gemini 2.5 Flash</li>
+                            <li class="custom-select-option selected" data-value="gemini-2.5-pro" role="option" aria-selected="true">Gemini 2.5 Pro</li>
+                        </ul>
+                    </div>
+                </div>
+                <textarea id="prompt-input" placeholder="在此输入您的“登山目标”..." rows="3"></textarea>
+                <button id="submit-button" aria-label="Submit prompt">启程</button>
+                <button id="review-button" class="secondary" aria-label="Review comparison" disabled>AI 对比评述</button>
+                <button id="settings-button" class="icon-button" aria-label="Settings">⚙️</button>
+            </div>
+        </footer>
+    </div>
+
+    <div id="settings-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>设置</h2>
+             <div class="form-group">
+                <label for="instruction-set-input">“灵魂复兴者”指令集:</label>
+                <textarea id="instruction-set-input" rows="10"></textarea>
+                <p class="api-key-note">自定义指令集将保存在您的浏览器中。您可以随时重置为默认值。</p>
+            </div>
+            <div class="modal-actions">
+                <button id="reset-instructions-button" class="tertiary">恢复默认指令集</button>
+                <button id="save-settings-button">保存设置</button>
+                <button id="close-settings-button" class="secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="review-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>AI 对比评述</h2>
+            <div id="review-output" class="output-content"></div>
+            <div class="modal-actions">
+                <button id="close-review-button" class="secondary">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="index.tsx"></script>
+</body>
+</html>

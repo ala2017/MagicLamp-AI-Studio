@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>量子云图 - 神灯AI书签管理器</title>
+    <link rel="stylesheet" href="/src/shared/styles/fonts.css">
+    <link rel="stylesheet" href="/src/shared/styles/themes.css">
+    <link rel="stylesheet" href="/src/shared/styles/common.css">
+    <link rel="stylesheet" href="/src/pages/ai-space/ai-space.css">
+    <link rel="stylesheet" href="/src/pages/ai-space/cloud-map/cloud-map.css">
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: var(--bg-primary, #0f172a);
+        }
+        
+        .cloud-map-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #cloud-map-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .controls-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--bg-secondary, #1e293b);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 100;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary, #8b5cf6);
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 15px;
+            color: white;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 主要内容区域 -->
+    <div class="cloud-map-container">
+        <!-- 可视化画布 -->
+        <div id="cloud-map-canvas"></div>
+        
+        <!-- 控制面板 -->
+        <div class="controls-panel">
+            <div class="control-group">
+                <label for="depth-slider">显示层级深度</label>
+                <div class="slider-container">
+                    <input type="range" id="depth-slider" min="1" max="5" value="2" step="1">
+                    <span id="depth-value">2</span>
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="zoom-slider">缩放</label>
+                <div class="slider-container">
+                    <input type="range" id="zoom-slider" min="0.5" max="2" value="1" step="0.1">
+                    <span id="zoom-value">1.0</span>
+                </div>
+            </div>
+            <div class="control-group button-group">
+                <button id="reset-view-btn" class="btn btn-sm">重置视图</button>
+                <button id="expand-all-btn" class="btn btn-sm">展开全部</button>
+                <button id="collapse-all-btn" class="btn btn-sm">折叠全部</button>
+                <button id="refresh-data-btn" class="btn btn-sm btn-refresh">刷新数据</button>
+            </div>
+        </div>
+        
+        <!-- 加载遮罩 -->
+        <div class="loading-overlay" id="loading-overlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">正在生成量子云图...</div>
+        </div>
+    </div>
+
+    <!-- 导入脚本 -->
+    <script src="/src/lib/d3/d3.v7.min.js"></script>
+    <script src="/src/shared/utils/cache-manager.js"></script>
+    <script src="/src/shared/utils/bookmark-helper.js"></script>
+    <script src="/src/shared/utils/notification-helper.js"></script>
+    <script src="/src/shared/utils/debug-helper.js"></script>
+    <script src="/src/pages/ai-space/cloud-map/cloud-map.js"></script>
+</body>
+</html> 

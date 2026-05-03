@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>神灯AI·文档分析器</title>
+    <!-- External libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/epubjs@0.3.93/dist/epub.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/viz.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viz.js/2.1.2/full.render.js"></script>
+    <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+    <!-- App scripts and styles -->
+    <link rel="stylesheet" href="index.css">
+    <script type="module" src="index.tsx"></script>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.20.0"
+  }
+}
+</script>
+</head>
+<body>
+    <div class="pw">
+        <header class="app-header">
+            <h1>神灯AI·文档分析器</h1>
+            <p>上传文档（TXT, MD, PDF, EPUB, PNG, JPG），即刻生成深度分析报告、思维导图与核心摘要。</p>
+        </header>
+
+        <main id="app-container">
+            <!-- Uploader Section -->
+            <div id="uploader" class="cc">
+                <div id="drop-zone">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                    <p>拖拽文件到这里，或 <strong>点击选择文件</strong></p>
+                    <p class="file-info" id="file-info"></p>
+                </div>
+                <input type="file" id="file-input" accept=".txt,.md,image/png,image/jpeg,.pdf,.epub,.mobi" hidden>
+                <button id="analyze-btn" class="cta-btn" disabled>开始分析</button>
+            </div>
+
+             <!-- Loading Indicator -->
+            <div id="loader" class="cc" style="display: none;">
+                <div class="spinner"></div>
+                <p>正在为您生成分析报告，请稍候...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="cc" style="display: none;">
+                <div class="msh">
+                    <h2>分析结果</h2>
+                    <div class="mhc">
+                        <button id="download-btn" class="btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            下载长图
+                        </button>
+                         <button id="reset-btn" class="btn-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+                            分析新文档
+                        </button>
+                    </div>
+                </div>
+                <div class="la">
+                    <!-- Mind Map -->
+                    <div class="rc">
+                        <div id="map-canvas-wrap">
+                            <div id="map-out">
+                                <p class="placeholder">思维导图将在此处生成...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Key Points -->
+                    <div class="ep">
+                        <h2>核心摘要</h2>
+                        <div id="explain-content">
+                            <div class="ph">分析摘要将在此处生成...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+             <!-- Error Message -->
+            <div id="error-box" class="cc" style="display: none;">
+                <h3>出现错误</h3>
+                <p id="error-message"></p>
+                <button id="reset-from-error-btn" class="btn-secondary">返回重试</button>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <p>神灯智库 · 天火义王</p>
+        </footer>
+    </div>
+</body>
+</html>

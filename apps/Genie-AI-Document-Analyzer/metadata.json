@@ -1,0 +1,5 @@
+{
+  "name": "神灯AI·文档分析器",
+  "description": "上传文档（TXT, MD, PDF, EPUB, PNG, JPG）或图片，即可生成思维导图和要点总结，并支持下载分享长图。",
+  "requestFramePermissions": []
+}

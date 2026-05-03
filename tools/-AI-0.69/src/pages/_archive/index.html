@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://unpkg.com; style-src 'self' 'unsafe-inline';">
+  <title>神灯AI书签管理器</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="../styles/quantum.css">
+  <link rel="stylesheet" href="../styles/quantum-cloud.css">
+  <style>
+    /* 添加关键的根元素样式 */
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* 确保主容器占满视口 */
+    .main {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="brand">
+      <h1>神灯AI书签管理器</h1>
+      <div class="app-info">
+        <span class="version">v0.68</span>
+      </div>
+    </div>
+    
+    <div class="stats">
+      <div class="stat-item">
+        <img src="../assets/icons/bookmark.svg" alt="书签" class="icon">
+        <span class="stat-count">1844</span>
+        <span class="stat-label">书签总数</span>
+      </div>
+      <div class="stat-item">
+        <img src="../assets/icons/folder.svg" alt="文件夹" class="icon">
+        <span class="stat-count">133</span>
+        <span class="stat-label">目录总数</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-random" id="randomBookmark">
+        <img src="../assets/icons/dice_icon32.png" alt="" class="icon">
+      </button>
+      <button class="btn btn-primary" id="homeBtn">
+        <img src="../assets/icons/home.svg" alt="" class="icon">
+        首页
+      </button>
+      <button class="btn btn-success" id="checkBtn">
+        <img src="../assets/icons/check.svg" alt="" class="icon">
+        检查链接
+      </button>
+      <button class="btn btn-warning" id="duplicateBtn">
+        <img src="../assets/icons/find.svg" alt="" class="icon">
+        查找重复
+      </button>
+      <button class="btn btn-info" id="aiAssistant" data-container=".ai-container">
+        <img src="../assets/icons/ai.svg" alt="" class="icon">
+        AI辅助
+      </button>
+      
+      <div class="utils">
+        <button class="btn-icon" id="themeToggle">
+          <img src="../assets/icons/theme.svg" alt="主题" class="icon">
+        </button>
+        <button class="btn-icon" id="langToggle">中</button>
+        <button class="btn-icon" id="settings">
+          <img src="../assets/icons/settings.svg" alt="设置" class="icon">
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 内容区域 -->
+  <main class="main">
+    <!-- 书签检查页面 -->
+    <div class="check-container" style="display: none;">
+      <!-- 进度区域 -->
+      <div class="check-progress">
+        <div class="progress-header">
+          <div class="progress-title">检查进度</div>
+          <div class="progress-tip">本测试结果不代表网站失效，与当前测试的网络环境有关</div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"></div>
+        </div>
+        <div class="progress-info">
+          <div class="current-url">准备开始检查...</div>
+          <div class="progress-stats">
+            <span class="completed">0</span> / <span class="total">0</span>
+            <span class="error-count">(发现 0 个错误)</span>
+          </div>
+        </div>
+        <div class="check-controls">
+          <button class="control-btn btn-stop" disabled>
+            <img src="../assets/icons/stop.svg" alt="" class="icon">
+            终止检查
+          </button>
+          <button class="control-btn btn-resume" disabled>
+            <img src="../assets/icons/play.svg" alt="" class="icon">
+            恢复检查
+          </button>
+          <button class="control-btn btn-restart">
+            <img src="../assets/icons/refresh.svg" alt="" class="icon">
+            重新检查
+          </button>
+        </div>
+      </div>
+
+      <!-- 结果列表 -->
+      <div class="check-results">
+        <!-- 结果项会通过JS动态插入 -->
+      </div>
+    </div>
+
+    <div class="bookmark-container">
+      <!-- 最常访问的书签 -->
+      <section class="bookmark-section">
+        <div class="section-header">
+          <h2>常用的书签</h2>
+        </div>
+        <div class="bookmark-grid" id="frequentBookmarks">
+          <!-- 书签卡片将通过JS动态插入 -->
+        </div>
+      </section>
+
+      <!-- 最长时间未访问的书签 -->
+      <section class="bookmark-section">
+        <div class="section-header">
+          <h2>被冷落的书签</h2>
+        </div>
+        <div class="bookmark-grid" id="unvisitedBookmarks">
+          <!-- 书签卡片将通过JS动态插入 -->
+        </div>
+      </section>
+    </div>
+
+    <!-- 重复查找容器 -->
+    <div class="duplicate-container" style="display: none;">
+      <!-- 进度区域 -->
+      <div class="check-progress">
+        <div class="progress-header">
+          <div class="progress-title">查找进度</div>
+          <div class="progress-tip">
+            发现 <span class="group-count">0</span> 组重复书签
+            · 共 <span class="duplicate-count">0</span> 个待处理
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-inner"></div>
+        </div>
+        <div class="progress-info">
+          <div class="current-url">准备开始查找...</div>
+          <div class="progress-stats">
+            <span class="completed">0</span> / <span class="total">0</span>
+          </div>
+        </div>
+        <div class="check-controls">
+          <button class="control-btn btn-stop" disabled>
+            <img src="../assets/icons/stop.svg" alt="" class="icon">
+            终止查找
+          </button>
+          <button class="control-btn btn-restart">
+            <img src="../assets/icons/refresh.svg" alt="" class="icon">
+            重新查找
+          </button>
+          <button class="control-btn btn-batch" disabled>
+            <img src="../assets/icons/batch.svg" alt="" class="icon">
+            批量处理
+          </button>
+        </div>
+      </div>
+
+      <!-- 分割线 -->
+      <div class="divider"></div>
+
+      <!-- 重复组列表 -->
+      <div class="duplicate-results">
+        <!-- 重复组会通过JS动态插入 -->
+      </div>
+    </div>
+
+    <!-- AI辅助容器 -->
+    <div class="ai-container" style="display: none;">
+      <!-- 左侧功能按钮 -->
+      <div class="feature-buttons">
+        <div class="feature-button active" data-feature="quantum-cloud">
+          <div class="feature-button-icon">🔮</div>
+          <div class="feature-button-text">量子云图</div>
+        </div>
+        <div class="feature-button" data-feature="quantum-tags">
+          <div class="feature-button-icon">🏷️</div>
+          <div class="feature-button-text">量子标签</div>
+        </div>
+        <div class="feature-button" data-feature="digital-alchemy">
+          <div class="feature-button-icon">⚗️</div>
+          <div class="feature-button-text">数字炼金石</div>
+        </div>
+        <div class="feature-button" data-feature="smart-aggregation">
+          <div class="feature-button-icon">🔄</div>
+          <div class="feature-button-text">智能聚合</div>
+        </div>
+        <div class="feature-button" data-feature="model-selection">
+          <div class="feature-button-icon">⚙️</div>
+          <div class="feature-button-text">模型选择</div>
+        </div>
+      </div>
+      
+      <!-- 右侧内容区域 -->
+      <div class="feature-content">
+        <div class="ai-header">
+          <h2>量子云图</h2>
+          <p class="ai-description">已加载 1794 个书签节点</p>
+        </div>
+        
+        <!-- 完全移除功能卡片区域 -->
+        
+        <!-- 量子云图容器 -->
+        <div class="quantum-cloud-container"></div>
+        
+        <!-- 模型选择容器 -->
+        <div class="model-selection-container" style="display: none;">
+          <!-- 标签页导航 -->
+          <div class="model-tabs">
+            <div class="model-tab" data-provider="siliconio">
+              <div class="tab-icon siliconio-icon"></div>
+              <div class="tab-name">硅基流动</div>
+              <div class="selected-model-badge">已选</div>
+            </div>
+            <div class="model-tab" data-provider="deepseek">
+              <div class="tab-icon deepseek-icon"></div>
+              <div class="tab-name">DeepSeek</div>
+              <div class="selected-model-badge">已选</div>
+            </div>
+            <div class="model-tab" data-provider="openrouter">
+              <div class="tab-icon openrouter-icon"></div>
+              <div class="tab-name">OpenRouter</div>
+              <div class="selected-model-badge">已选</div>
+            </div>
+            <div class="model-tab" data-provider="openai">
+              <div class="tab-icon openai-icon"></div>
+              <div class="tab-name">OpenAI</div>
+              <div class="selected-model-badge">已选</div>
+            </div>
+            <div class="model-tab" data-provider="gemini">
+              <div class="tab-icon gemini-icon"></div>
+              <div class="tab-name">Gemini</div>
+              <div class="selected-model-badge">已选</div>
+            </div>
+          </div>
+          
+          <!-- 标签内容区域 -->
+          <div class="model-tab-contents">
+            <!-- 硅基流动 -->
+            <div class="model-tab-content" id="siliconio-content">
+              <div class="provider-header">
+                <img src="../assets/providers/siliconio-logo.png" alt="硅基流动" class="provider-logo">
+                <h3>硅基流动</h3>
+              </div>
+              <div class="provider-form">
+                <div class="form-group">
+                  <label for="siliconio-api-key">API Key</label>
+                  <div class="input-with-action">
+                    <input type="password" id="siliconio-api-key" class="api-key-input" placeholder="输入您的硅基流动API Key">
+                    <button class="toggle-password"><i class="eye-icon"></i></button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="siliconio-model">选择模型</label>
+                  <select id="siliconio-model" class="model-select">
+                    <option value="deepseek-ai/DeepSeek-V3">DeepSeek V3</option>
+                    <option value="deepseek-ai/DeepSeek-R1">DeepSeek R1</option>
+                    <option value="Qwen/Qwen2.5-7B-Instruct">Qwen 2.5 7B</option>
+                    <option value="meta-llama/Meta-Llama-3.1-8B-Instruct">Llama 3.1 8B</option>
+                    <option value="Qwen/QwQ-32B-Preview">QwQ 32B</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button class="test-model-btn">测试连接</button>
+                  <button class="save-model-btn primary">保存设置</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- DeepSeek -->
+            <div class="model-tab-content" id="deepseek-content">
+              <div class="provider-header">
+                <img src="../assets/providers/deepseek-logo.png" alt="DeepSeek" class="provider-logo">
+                <h3>DeepSeek</h3>
+              </div>
+              <div class="provider-form">
+                <div class="form-group">
+                  <label for="deepseek-api-key">API Key</label>
+                  <div class="input-with-action">
+                    <input type="password" id="deepseek-api-key" class="api-key-input" placeholder="输入您的DeepSeek API Key">
+                    <button class="toggle-password"><i class="eye-icon"></i></button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="deepseek-model">选择模型</label>
+                  <select id="deepseek-model" class="model-select">
+                    <option value="deepseek-coder">DeepSeek Coder</option>
+                    <option value="deepseek-chat">DeepSeek Chat</option>
+                    <option value="deepseek-llm">DeepSeek LLM</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button class="test-model-btn">测试连接</button>
+                  <button class="save-model-btn primary">保存设置</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- OpenRouter -->
+            <div class="model-tab-content" id="openrouter-content">
+              <div class="provider-header">
+                <img src="../assets/providers/openrouter-logo.png" alt="OpenRouter" class="provider-logo">
+                <h3>OpenRouter</h3>
+              </div>
+              <div class="provider-form">
+                <div class="form-group">
+                  <label for="openrouter-api-key">API Key</label>
+                  <div class="input-with-action">
+                    <input type="password" id="openrouter-api-key" class="api-key-input" placeholder="输入您的OpenRouter API Key">
+                    <button class="toggle-password"><i class="eye-icon"></i></button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="openrouter-model">选择模型</label>
+                  <select id="openrouter-model" class="model-select">
+                    <option value="anthropic/claude-3-opus">Claude 3 Opus</option>
+                    <option value="anthropic/claude-3-sonnet">Claude 3 Sonnet</option>
+                    <option value="meta-llama/llama-3-70b">Llama 3 70B</option>
+                    <option value="mistralai/mistral-large">Mistral Large</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button class="test-model-btn">测试连接</button>
+                  <button class="save-model-btn primary">保存设置</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- OpenAI -->
+            <div class="model-tab-content" id="openai-content">
+              <div class="provider-header">
+                <img src="../assets/providers/openai-logo.png" alt="OpenAI" class="provider-logo">
+                <h3>OpenAI</h3>
+              </div>
+              <div class="provider-form">
+                <div class="form-group">
+                  <label for="openai-api-key">API Key</label>
+                  <div class="input-with-action">
+                    <input type="password" id="openai-api-key" class="api-key-input" placeholder="输入您的OpenAI API Key">
+                    <button class="toggle-password"><i class="eye-icon"></i></button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="openai-model">选择模型</label>
+                  <select id="openai-model" class="model-select">
+                    <option value="gpt-4o">GPT-4o</option>
+                    <option value="gpt-4-turbo">GPT-4 Turbo</option>
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="dall-e-3">DALL-E 3</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button class="test-model-btn">测试连接</button>
+                  <button class="save-model-btn primary">保存设置</button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Gemini -->
+            <div class="model-tab-content" id="gemini-content">
+              <div class="provider-header">
+                <img src="../assets/providers/gemini-logo.png" alt="Gemini" class="provider-logo">
+                <h3>Gemini</h3>
+              </div>
+              <div class="provider-form">
+                <div class="form-group">
+                  <label for="gemini-api-key">API Key</label>
+                  <div class="input-with-action">
+                    <input type="password" id="gemini-api-key" class="api-key-input" placeholder="输入您的Google API Key">
+                    <button class="toggle-password"><i class="eye-icon"></i></button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="gemini-model">选择模型</label>
+                  <select id="gemini-model" class="model-select">
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                    <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
+                    <option value="gemini-1.0-pro">Gemini 1.0 Pro</option>
+                  </select>
+                </div>
+                <div class="form-actions">
+                  <button class="test-model-btn">测试连接</button>
+                  <button class="save-model-btn primary">保存设置</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../assets/js/d3.v7.min.js"></script>
+  <script src="../../temp_script.js"></script>
+  <script src="./index.js"></script>
+</body>
+</html>

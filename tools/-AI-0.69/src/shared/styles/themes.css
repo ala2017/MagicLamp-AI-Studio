@@ -1,0 +1,179 @@
+/* 主题系统
+   参考实现: ../_archive/style.css */
+
+:root {
+    /* 亮色主题默认值 */
+    --primary-color: #4285F4;
+    --primary-color-hover: #1a73e8;
+    --on-primary: #FFFFFF;
+    
+    --surface-color: #FFFFFF;
+    --surface-variant: #F5F5F5;
+    --on-surface: #1F1F1F;
+    --on-surface-variant: #757575;
+    
+    --success-color: #34A853;
+    --success-color-container: #E6F4EA;
+    --on-success: #FFFFFF;
+    
+    --warning-color: #FBBC05;
+    --warning-color-container: #FEF7E0;
+    --on-warning: #FFFFFF;
+    
+    --error-color: #EA4335;
+    --error-color-container: #FDECEA;
+    --on-error: #FFFFFF;
+    
+    --info-color: #4285F4;
+    --info-color-container: #E8F0FE;
+    --on-info: #FFFFFF;
+    
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.1);
+    
+    --background-color: #FFFFFF;
+    --text-color: #1F1F1F;
+}
+
+/* 暗色主题 */
+[data-theme="dark"] {
+    --primary-color: #8AB4F8;
+    --primary-color-hover: #669DF6;
+    --on-primary: #1F1F1F;
+    
+    --surface-color: #1F1F1F;
+    --surface-variant: #2D2D2D;
+    --on-surface: #FFFFFF;
+    --on-surface-variant: #BBBBBB;
+    
+    --success-color: #81C995;
+    --success-color-container: #0D3921;
+    --on-success: #1F1F1F;
+    
+    --warning-color: #FDD663;
+    --warning-color-container: #3D3102;
+    --on-warning: #1F1F1F;
+    
+    --error-color: #F28B82;
+    --error-color-container: #3D0E0B;
+    --on-error: #1F1F1F;
+    
+    --info-color: #8AB4F8;
+    --info-color-container: #0D2B66;
+    --on-info: #1F1F1F;
+    
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.3);
+    
+    --background-color: #121212;
+    --text-color: #FFFFFF;
+}
+
+/* 深色主题特定样式 */
+:root:not([data-theme="light"]) .header {
+    backdrop-filter: blur(10px);
+}
+
+:root:not([data-theme="light"]) .bookmark-section {
+    background-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+:root:not([data-theme="light"]) .bookmark-card {
+    background-color: var(--card-bg);
+}
+
+:root:not([data-theme="light"]) .bookmark-icon {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+:root:not([data-theme="light"]) .bookmark-visits {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+:root:not([data-theme="light"]) .bookmark-card:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* 浅色主题特定样式 */
+:root[data-theme="light"] .bookmark-section {
+    background-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .bookmark-card {
+    background-color: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .bookmark-icon {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+:root[data-theme="light"] .bookmark-visits {
+    color: rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="light"] .bookmark-section:first-child .bookmark-card {
+    border-left: 3px solid rgba(74, 144, 226, 0.5);
+    background: linear-gradient(to right, rgba(74, 144, 226, 0.05), rgba(255, 255, 255, 0.9));
+}
+
+:root[data-theme="light"] .bookmark-section:last-child .bookmark-card {
+    border-left: 3px solid rgba(255, 152, 0, 0.5);
+    background: linear-gradient(to right, rgba(255, 152, 0, 0.05), rgba(255, 255, 255, 0.9));
+}
+
+:root[data-theme="light"] .bookmark-card:hover {
+    background-color: rgba(255, 255, 255, 1);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .btn-icon:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 主题切换按钮样式 */
+.theme-toggle {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+:root:not([data-theme="light"]) .theme-toggle {
+    color: #FFC107;
+}
+
+:root[data-theme="light"] .theme-toggle {
+    color: #3498DB;
+}
+
+.theme-toggle:hover {
+    background-color: var(--hover-bg);
+}
+
+.theme-toggle::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: var(--hover-bg);
+    border-radius: 50%;
+    transform: scale(0);
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle:hover::before {
+    transform: scale(1);
+} 

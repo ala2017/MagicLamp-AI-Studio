@@ -1,0 +1,47 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 双子星形状 -->
+  <circle cx="18" cy="24" r="6" 
+    stroke="currentColor" 
+    stroke-width="2"
+    fill="none"
+  />
+  <circle cx="30" cy="24" r="6" 
+    stroke="currentColor" 
+    stroke-width="2"
+    fill="none"
+  />
+  
+  <!-- 连接线 -->
+  <path d="M24 18V30" 
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-dasharray="2 2"
+  />
+  
+  <!-- 光环效果 -->
+  <circle cx="18" cy="24" r="10" 
+    stroke="currentColor"
+    stroke-width="1"
+    opacity="0.2"
+  >
+    <animate
+      attributeName="opacity"
+      values="0.2;0.4;0.2"
+      dur="2s"
+      repeatCount="indefinite"
+    />
+  </circle>
+  <circle cx="30" cy="24" r="10" 
+    stroke="currentColor"
+    stroke-width="1"
+    opacity="0.2"
+  >
+    <animate
+      attributeName="opacity"
+      values="0.2;0.4;0.2"
+      dur="2s"
+      repeatCount="indefinite"
+      begin="1s"
+    />
+  </circle>
+</svg> 

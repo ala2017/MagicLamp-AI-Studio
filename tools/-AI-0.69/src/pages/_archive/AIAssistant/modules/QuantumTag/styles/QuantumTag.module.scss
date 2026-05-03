@@ -1,0 +1,237 @@
+// 量子标签模块主样式
+
+// 主容器
+.quantumContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+}
+
+// 视图切换标签
+.viewTabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.tabItem {
+  padding: 12px 20px;
+  cursor: pointer;
+  text-align: center;
+  flex: 1;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+  
+  &:hover {
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, #4F8FFE, #18C8FF);
+    color: white;
+  }
+}
+
+// 视图容器
+.viewContainer {
+  position: relative;
+  flex: 1;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  margin-bottom: 20px;
+  min-height: 300px;
+  overflow: hidden;
+}
+
+// 标签云视图
+.tagCloudView,
+.tagRelationView {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  
+  &.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+// 加载指示器
+.loadingIndicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border-top-color: #4F8FFE;
+  animation: spin 1s ease-in-out infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.loadingText {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+// 导航按钮样式
+.refreshButton,
+.settingsButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  margin-left: 8px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// 错误容器
+.errorContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 8px;
+  text-align: center;
+  max-width: 500px;
+  margin: 0 auto;
+  
+  .errorIcon {
+    font-size: 48px;
+    margin-bottom: 1rem;
+  }
+  
+  .errorTitle {
+    font-size: 20px;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: #ff5252;
+  }
+  
+  .errorMessage {
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+  }
+}
+
+// 按钮样式
+.primaryButton,
+.secondaryButton,
+.actionButton {
+  padding: 10px 16px;
+  border-radius: 4px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 5px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.primaryButton {
+  background-color: #4263EB;
+  color: white;
+  
+  &:hover {
+    background-color: #3b58d9;
+  }
+}
+
+.secondaryButton {
+  background-color: transparent;
+  border: 1px solid #4263EB;
+  color: #4263EB;
+  
+  &:hover {
+    background-color: rgba(66, 99, 235, 0.1);
+  }
+}
+
+.actionButton {
+  background-color: #4263EB;
+  color: white;
+  margin-top: 1rem;
+  
+  &:hover {
+    background-color: #3b58d9;
+  }
+}
+
+// 空状态样式
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  
+  .emptyIcon {
+    font-size: 48px;
+    margin-bottom: 1rem;
+  }
+  
+  .emptyText {
+    margin-bottom: 1rem;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+  }
+}
+
+// 错误消息样式
+.errorMessage {
+  color: #ff5252;
+  margin-top: 0.5rem;
+  text-align: center;
+  max-width: 80%;
+} 

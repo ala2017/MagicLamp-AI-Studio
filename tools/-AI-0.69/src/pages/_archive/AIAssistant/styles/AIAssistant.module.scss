@@ -1,0 +1,349 @@
+.aiAssistantContainer {
+  position: relative;
+  min-height: 100vh;
+  min-width: 768px;
+  background: var(--bg-gradient);
+  overflow-x: hidden;
+  display: flex;
+}
+
+.sideNav {
+  width: 64px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  transition: width 0.3s ease;
+  padding: 20px 0;
+  z-index: 2;
+  
+  &:hover {
+    width: 200px;
+    
+    .featureButtonText {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+.featureButton {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  
+  &:hover {
+    background: rgba(89, 203, 232, 0.1);
+    
+    .featureButtonIcon {
+      transform: scale(1.1);
+    }
+  }
+  
+  &.active {
+    background: rgba(89, 203, 232, 0.2);
+    
+    &::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 3px;
+      background: rgb(89, 203, 232);
+      box-shadow: 0 0 10px rgba(89, 203, 232, 0.5);
+    }
+  }
+}
+
+.featureButtonIcon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    color: rgb(89, 203, 232);
+    filter: drop-shadow(0 0 2px rgba(89, 203, 232, 0.3));
+  }
+}
+
+.featureButtonText {
+  margin-left: 12px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 24px 32px;
+  overflow-y: auto;
+  position: relative;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(89, 203, 232, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(89, 203, 232, 0.5);
+    }
+  }
+}
+
+.header {
+  margin-bottom: 32px;
+  text-align: center;
+  
+  h1 {
+    font-size: 32px;
+    margin: 0 0 12px;
+    background: linear-gradient(135deg, #4F8FFE, #18C8FF);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(79, 143, 254, 0.2);
+  }
+  
+  p {
+    color: var(--text-secondary);
+    font-size: 16px;
+    margin: 0;
+    opacity: 0.8;
+  }
+}
+
+.featureGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.featureCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 24px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(79, 143, 254, 0.1), rgba(24, 200, 255, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    
+    &::before {
+      opacity: 1;
+    }
+    
+    .featureCardIcon {
+      transform: scale(1.1);
+    }
+  }
+}
+
+.featureCardHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.featureCardIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: rgba(89, 203, 232, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  transition: transform 0.3s ease;
+  
+  svg {
+    width: 24px;
+    height: 24px;
+    color: rgb(89, 203, 232);
+    filter: drop-shadow(0 0 2px rgba(89, 203, 232, 0.3));
+  }
+}
+
+.featureCardTitle {
+  font-size: 18px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.featureCardDescription {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+  margin: 0;
+  opacity: 0.8;
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-top: 40px;
+  max-width: 1200px;
+  margin: 40px auto 0;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  
+  .statValue {
+    font-size: 28px;
+    font-weight: 600;
+    color: rgb(89, 203, 232);
+    margin: 0 0 8px;
+    text-shadow: 0 0 10px rgba(89, 203, 232, 0.3);
+  }
+  
+  .statLabel {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin: 0;
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 1024px) {
+  .featureGrid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+  
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .aiAssistantContainer {
+    min-width: 320px;
+  }
+  
+  .sideNav {
+    width: 48px;
+    
+    &:hover {
+      width: 160px;
+    }
+  }
+  
+  .mainContent {
+    padding: 16px;
+  }
+  
+  .header {
+    h1 {
+      font-size: 24px;
+    }
+    
+    p {
+      font-size: 14px;
+    }
+  }
+  
+  .featureGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// 新增样式 - 功能内容区域
+.featureContent {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 12px;
+  padding: 24px;
+  min-height: 500px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+}
+
+// 加载中指示器
+.loading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+  
+  &::after {
+    content: '';
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 3px solid rgba(89, 203, 232, 0.3);
+    border-top-color: rgb(89, 203, 232);
+    animation: spin 1s infinite linear;
+    margin-bottom: 12px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// 占位提示
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  color: var(--text-secondary);
+  font-size: 18px;
+  text-align: center;
+} 

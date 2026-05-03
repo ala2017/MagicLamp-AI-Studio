@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+webview/node_modules/
+
+# Build output
+dist/
+*.vsix
+
+# Environment
+.env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Backup source (not needed in repo)
+magiclampmusic源代码/
+
+# Magic Lamp internal
+.magiclamp/
+node_modules

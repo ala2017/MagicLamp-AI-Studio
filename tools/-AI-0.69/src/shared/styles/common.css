@@ -1,0 +1,535 @@
+/* @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap'); */
+@import './fonts.css';
+@import './variables.css';
+
+/* 备选字体定义 */
+@font-face {
+    font-family: 'Inter Fallback';
+    src: local('Arial'), local('Helvetica'), local('sans-serif');
+    font-weight: 400;
+}
+@font-face {
+    font-family: 'Inter Fallback';
+    src: local('Arial Bold'), local('Helvetica Bold'), local('sans-serif');
+    font-weight: 500;
+}
+@font-face {
+    font-family: 'Inter Fallback';
+    src: local('Arial Bold'), local('Helvetica Bold'), local('sans-serif');
+    font-weight: 600;
+}
+@font-face {
+    font-family: 'Inter Fallback';
+    src: local('Arial Bold'), local('Helvetica Bold'), local('sans-serif');
+    font-weight: 700;
+}
+
+/* 通用样式 */
+:root {
+    --primary-color: #A8C4FF;
+    --success-color: #4CAF50;
+    --warning-color: #FFC107;
+    --info-color: #2196F3;
+    --text-color: #FFFFFF;
+    --bg-color: #1E1E1E;
+    --card-bg: #2D2D2D;
+}
+
+/* 浅色主题变量 */
+:root[data-theme="light"] {
+    --text-color: #334155;
+    --bg-color: #F1F5F9;
+    --card-bg: rgba(255, 255, 255, 0.7);
+    --primary-color: #4A90E2;
+    --success-color: #2ECC71;
+    --warning-color: #F1C40F;
+    --info-color: #3498DB;
+}
+
+/* 主题切换过渡动画 */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow: hidden;
+}
+
+/* 全局背景优化 */
+body:before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 10% 20%, rgba(26, 30, 55, 0.7) 0%, rgba(16, 18, 34, 0.8) 90%);
+  z-index: -1;
+}
+
+/* 顶部导航栏 */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 10;
+}
+
+/* 品牌区域 */
+.brand {
+    display: flex;
+    align-items: center;
+}
+
+.brand h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    background: linear-gradient(45deg, #A8C4FF, #4A90E2);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+}
+
+/* 按钮样式 */
+.btn {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.2),
+        transparent
+    );
+    transition: all 0.5s ease;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-primary { background-color: var(--primary-color); }
+.btn-success { background-color: var(--success-color); }
+.btn-warning { background-color: var(--warning-color); }
+.btn-info { background-color: var(--info-color); }
+
+/* 图标通用样式 */
+.icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+    vertical-align: middle;
+    filter: invert(1);
+    transition: filter 0.3s ease;
+}
+
+/* 浅色主题下的图标 */
+:root[data-theme="light"] .icon {
+    filter: invert(0.2);
+}
+
+/* 特定颜色的图标 */
+.icon-primary { filter: invert(0.5) sepia(1) saturate(5) hue-rotate(175deg); }
+.icon-success { filter: invert(0.5) sepia(1) saturate(5) hue-rotate(100deg); }
+.icon-warning { filter: invert(0.5) sepia(1) saturate(5) hue-rotate(0deg); }
+.icon-info { filter: invert(0.5) sepia(1) saturate(5) hue-rotate(180deg); }
+
+/* 主内容区域 */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* 加载动画 */
+.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    border-top-color: var(--primary-color);
+    animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* 错误提示 */
+.error-message {
+    color: #FF5252;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: rgba(255, 82, 82, 0.1);
+    border-radius: 4px;
+    text-align: center;
+}
+
+/* 浅色主题覆盖 */
+:root[data-theme="light"] .header {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .error-message {
+    background-color: rgba(255, 82, 82, 0.05);
+}
+
+/* 重置样式 */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* 根元素样式 */
+:root {
+    font-family: 'Inter', 'Inter Fallback', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.5;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
+/* 基础布局 */
+html, body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+/* 主容器 */
+.main {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 内容区域 */
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+/* 通用按钮样式 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* 按钮变体 */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: var(--on-primary);
+}
+
+.btn-success {
+    background-color: var(--success-color);
+    color: var(--on-success);
+}
+
+.btn-warning {
+    background-color: var(--warning-color);
+    color: var(--on-warning);
+}
+
+.btn-info {
+    background-color: var(--info-color);
+    color: var(--on-info);
+}
+
+/* 图标 */
+.icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+}
+
+/* 卡片样式 */
+.card {
+    background-color: var(--surface-color);
+    border-radius: 0.5rem;
+    box-shadow: var(--shadow-sm);
+    padding: 1rem;
+}
+
+/* 文本样式 */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--on-surface);
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.125rem; }
+
+/* 辅助类 */
+.text-primary { color: var(--primary-color); }
+.text-success { color: var(--success-color); }
+.text-warning { color: var(--warning-color); }
+.text-info { color: var(--info-color); }
+.text-error { color: var(--error-color); }
+
+.bg-primary { background-color: var(--primary-color); }
+.bg-success { background-color: var(--success-color); }
+.bg-warning { background-color: var(--warning-color); }
+.bg-info { background-color: var(--info-color); }
+.bg-error { background-color: var(--error-color); }
+
+/* 动画 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { transform: translateY(1rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+/* 调试信息面板 */
+#debug-info {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    max-width: 300px;
+    max-height: 200px;
+    overflow: auto;
+    z-index: 9999;
+    display: none;
+}
+
+/* 重置样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: var(--font-primary);
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+/* 背景动态效果 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 0% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(45, 212, 191, 0.05) 0%, transparent 50%);
+    z-index: -1;
+    animation: backgroundShift 20s ease-in-out infinite alternate;
+}
+
+@keyframes backgroundShift {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+/* 通用按钮样式 */
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.btn:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.btn .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.9;
+    filter: brightness(0) invert(1);
+}
+
+/* 按钮变体 */
+.btn-primary { 
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.btn-success { 
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(16, 185, 129, 0.2));
+    border-color: rgba(34, 197, 94, 0.3);
+}
+
+.btn-warning { 
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(234, 88, 12, 0.2));
+    border-color: rgba(245, 158, 11, 0.3);
+}
+
+.btn-info { 
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(59, 130, 246, 0.2));
+    border-color: rgba(6, 182, 212, 0.3);
+}
+
+/* 图标按钮 */
+.btn-icon {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+}
+
+.btn-icon:hover {
+    border-color: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-1px);
+}
+
+.btn-icon .icon {
+    width: 18px;
+    height: 18px;
+    opacity: 0.9;
+    filter: brightness(0) invert(1);
+}
+
+/* 浅色主题适配 */
+[data-theme="light"] .btn,
+[data-theme="light"] .btn-icon {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .btn:hover,
+[data-theme="light"] .btn-icon:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .icon {
+    filter: brightness(0);
+    opacity: 0.7;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 浅色主题滚动条 */
+[data-theme="light"] ::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.05);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.1);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+    background: rgba(15, 23, 42, 0.2);
+} 

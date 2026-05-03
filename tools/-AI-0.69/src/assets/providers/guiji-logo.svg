@@ -1,0 +1,57 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 硅晶体结构 -->
+  <path d="M24 4L44 24L24 44L4 24L24 4Z" 
+    stroke="currentColor" 
+    stroke-width="2"
+    fill="none"
+  />
+  
+  <!-- 电子轨道 -->
+  <circle cx="24" cy="24" r="16" 
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-dasharray="4 2"
+    fill="none"
+  >
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 24 24"
+      to="360 24 24"
+      dur="10s"
+      repeatCount="indefinite"
+    />
+  </circle>
+  
+  <!-- 流动效果 -->
+  <path d="M12 24C12 24, 24 16, 36 24" 
+    stroke="currentColor"
+    stroke-width="1.5"
+    fill="none"
+    opacity="0.6"
+  >
+    <animate
+      attributeName="d"
+      dur="3s"
+      repeatCount="indefinite"
+      values="
+        M12 24C12 24, 24 16, 36 24;
+        M12 24C12 24, 24 32, 36 24;
+        M12 24C12 24, 24 16, 36 24
+      "
+    />
+  </path>
+  
+  <!-- 中心点 -->
+  <circle cx="24" cy="24" r="4" 
+    fill="currentColor"
+    opacity="0.8"
+  >
+    <animate
+      attributeName="r"
+      values="4;5;4"
+      dur="2s"
+      repeatCount="indefinite"
+    />
+  </circle>
+</svg> 

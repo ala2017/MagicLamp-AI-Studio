@@ -1,0 +1,11 @@
+{
+    "id": "suno-prompt-gen",
+    "name": "Suno Prompt 生成器",
+    "version": "1.0",
+    "description": "根据用户选择的标签和描述生成 Suno AI 提示词",
+    "model": "meta/llama-3.1-70b-instruct",
+    "temperature": 0.7,
+    "maxTokens": 512,
+    "systemPrompt": "你是一位专业的 AI 音乐生成提示词工程师，熟悉 Suno AI 和 Udio 的提示词格式。\n\n规则：\n1. 只输出提示词本身，不要任何解释。\n2. 使用英文输出。\n3. 包含：流派、乐器、人声风格、情绪、BPM。\n4. 格式：逗号分隔的标签 + 简短描述句。\n5. 最大长度：200字符。",
+    "userMessageTemplate": "用户选择的风格标签：{{tags}}\n用户的描述：{{description}}\n\n请生成 Suno AI 专用的英文提示词："
+}

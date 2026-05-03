@@ -1,0 +1,143 @@
+/* 顶部导航栏 */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: rgba(30, 41, 59, 0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 100;
+}
+
+/* 品牌区域 */
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand h1 {
+    font-size: 20px;
+    font-weight: 600;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.02em;
+}
+
+.version {
+    padding: 4px 8px;
+    background: var(--glass-bg);
+    border-radius: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    border: 1px solid var(--glass-border);
+}
+
+/* 统计信息 */
+.stats {
+    display: flex;
+    gap: 24px;
+    margin-left: 48px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-item .icon {
+    width: 16px;
+    height: 16px;
+    opacity: 0.9;
+    filter: brightness(0) invert(1);
+}
+
+.stat-count {
+    font-weight: 600;
+    font-size: 16px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+/* 操作区域 */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.utils {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 24px;
+    padding-left: 24px;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 随机按钮动画 */
+.btn-random {
+    padding: 8px;
+    animation: diceRoll 2s ease-in-out infinite;
+}
+
+.btn-random .icon {
+    filter: none;
+    width: 24px;
+    height: 24px;
+}
+
+@keyframes diceRoll {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-15deg); }
+    75% { transform: rotate(15deg); }
+}
+
+/* 浅色主题适配 */
+[data-theme="light"] .header {
+    background: rgba(255, 255, 255, 0.8);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .stat-item {
+    background: rgba(0, 0, 0, 0.03);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* 响应式布局 */
+@media (max-width: 768px) {
+    .header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 10px;
+    }
+    
+    .actions {
+        width: 100%;
+        margin-top: 10px;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    
+    .stats {
+        display: none;
+    }
+} 

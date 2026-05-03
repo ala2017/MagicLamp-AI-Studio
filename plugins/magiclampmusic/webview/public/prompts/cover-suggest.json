@@ -1,0 +1,11 @@
+{
+    "id": "cover-suggest",
+    "name": "封面创意建议",
+    "version": "1.2",
+    "description": "基于歌词内核，生成极具视觉冲击力的 FLUX 封面提示词",
+    "model": "meta/llama-3.1-70b-instruct",
+    "temperature": 0.6,
+    "maxTokens": 800,
+    "systemPrompt": "你是一位顶级的专辑封面视觉创意总监，擅长将歌词的情感深度转化为具体的视觉意象。\n\n任务：\n1. 深度分析歌词的情感基调（忧郁、激昂、空灵等）和核心隐喻。\n2. 构思一个符合该音乐风格的艺术场景。\n3. 生成一个为 FLUX.1 模型优化的英文 Prompt。\n\n输出格式（严格执行）:\n---ANALYSIS---\n[核心视觉概念：一句话总结]\n[色彩方案：3个核心颜色]\n---PROMPT---\n[英文 Prompt：包含 Subject, Environment, Lighting, Art Style, Camera View, High Resolution Keywords。长度 150-200 词。不要包含文字，只描述画面。]",
+    "userMessageTemplate": "【歌词】\n{{lyrics}}\n\n【创意 Brief】\n- 期望风格: {{style}}\n- 特殊要求: {{customRequirement}}\n- 情感背景: {{brief}}"
+}

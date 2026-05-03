@@ -1,0 +1,8 @@
+{
+  "name": "神灯AI·大师学习精灵",
+  "description": "基于 AI 的自适应学习系统，支持全场景语音交互与能力图谱构建。",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}

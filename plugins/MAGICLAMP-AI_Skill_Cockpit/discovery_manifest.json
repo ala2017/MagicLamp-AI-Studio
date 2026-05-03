@@ -1,0 +1,73 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "version": "1.0.0",
+    "discoveryRules": [
+        {
+            "id": "claude-mcp-windows-global",
+            "provider": "Claude Desktop",
+            "type": "MCP",
+            "scope": "Global",
+            "platform": "win32",
+            "path": "${env:APPDATA}/Claude/claude_desktop_config.json",
+            "format": "json-mcp",
+            "documentation": "https://modelcontextprotocol.io/docs/concepts/server"
+        },
+        {
+            "id": "cursor-rules-project",
+            "provider": "Cursor",
+            "type": "Skill",
+            "scope": "Project",
+            "path": "${workspaceFolder}/.cursor/rules/",
+            "pattern": "**/*.mdc",
+            "format": "cursor-mdc",
+            "documentation": "https://docs.cursor.com/context/rules"
+        },
+        {
+            "id": "cursor-styles-global",
+            "provider": "Cursor",
+            "type": "Style",
+            "scope": "Global",
+            "path": "${env:APPDATA}/Cursor/User/workspaceStorage/", 
+            "hint": "Requires SQLite parsing of state.vscdb (Advanced)",
+            "format": "sqlite-vscdb",
+            "documentation": "https://docs.cursor.com/context/rules"
+        },
+        {
+            "id": "opencode-skills-global",
+            "provider": "OpenCode",
+            "type": "Skill",
+            "scope": "Global",
+            "path": "${env:USERPROFILE}/.config/opencode/skills/",
+            "pattern": "**/SKILL.md",
+            "format": "antigravity-skill",
+            "documentation": "https://github.com/opencode/agent-skills"
+        },
+        {
+            "id": "opencode-skills-project",
+            "provider": "OpenCode",
+            "type": "Skill",
+            "scope": "Project",
+            "path": "${workspaceFolder}/.opencode/skills/",
+            "pattern": "**/SKILL.md",
+            "format": "antigravity-skill"
+        },
+        {
+            "id": "antigravity-skills-global",
+            "provider": "Antigravity",
+            "type": "Skill",
+            "scope": "Global",
+            "path": "${env:USERPROFILE}/.gemini/antigravity/global_skills/",
+            "pattern": "**/SKILL.md",
+            "format": "antigravity-skill"
+        },
+        {
+            "id": "antigravity-skills-project",
+            "provider": "Antigravity",
+            "type": "Skill",
+            "scope": "Project",
+            "path": "${workspaceFolder}/.agent/skills/",
+            "pattern": "**/SKILL.md",
+            "format": "antigravity-skill"
+        }
+    ]
+}

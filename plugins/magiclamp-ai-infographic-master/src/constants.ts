@@ -1,0 +1,42 @@
+export const LAYOUTS = [
+  { id: 'bridge', label: '桥梁', desc: '问题→解决方案、跨越鸿沟' },
+  { id: 'circular-flow', label: '循环流动', desc: '循环、周期性流程' },
+  { id: 'comparison-table', label: '对比表格', desc: '多因素对比' },
+  { id: 'do-dont', label: '黑白分明', desc: '正确 vs 错误做法' },
+  { id: 'equation', label: '公式分解', desc: '输入→输出' },
+  { id: 'feature-list', label: '要点列表', desc: '产品功能、核心要点' },
+  { id: 'fishbone', label: '鱼骨图', desc: '根因分析' },
+  { id: 'funnel', label: '转化漏斗', desc: '漏斗筛选过程' },
+  { id: 'grid-cards', label: '卡片网格', desc: '多主题概览、便当盒' },
+  { id: 'iceberg', label: '冰山模型', desc: '表面 vs 隐藏层面' },
+  { id: 'journey-path', label: '旅程路线', desc: '用户旅程、里程碑' },
+  { id: 'layers-stack', label: '分层堆叠', desc: '技术栈、分层结构' },
+  { id: 'mind-map', label: '思维导图', desc: '头脑风暴、放射结构' },
+  { id: 'nested-circles', label: '嵌套圆圈', desc: '影响层级、范围圈' },
+  { id: 'priority-quadrants', label: '四象限方格', desc: '四象限矩阵、优先级' },
+  { id: 'pyramid', label: '金字塔', desc: '层级金字塔、马斯洛需求' },
+  { id: 'scale-balance', label: '天平对比', desc: '利弊权衡、平衡关系' },
+  { id: 'timeline-horizontal', label: '水平时间线', desc: '历史、时间线事件' },
+  { id: 'tree-hierarchy', label: '树状层级', desc: '组织架构、分类树' },
+  { id: 'venn', label: '韦恩图', desc: '重叠概念、交集' }
+];
+
+export const STYLES = [
+  { id: 'craft-handmade', label: '手作纸艺', desc: '手绘插画、纸艺风格' },
+  { id: 'claymation', label: '定格黏土', desc: '3D黏土人物、定格动画感' },
+  { id: 'kawaii', label: '日系可爱', desc: '大眼睛、粉彩色' },
+  { id: 'storybook-watercolor', label: '童话水彩', desc: '柔和水彩、童话绘本' },
+  { id: 'chalkboard', label: '粉笔黑板', desc: '彩色粉笔、黑板风格' },
+  { id: 'cyberpunk-neon', label: '赛博朋克霓虹', desc: '霓虹灯光、暗色未来感' },
+  { id: 'bold-graphic', label: '美漫波普', desc: '漫画风、高对比' },
+  { id: 'aged-academia', label: '复古学术', desc: '复古科学、泛黄素描' },
+  { id: 'corporate-memphis', label: '企业孟菲斯', desc: '扁平矢量人物、鲜艳填充' },
+  { id: 'technical-schematic', label: '工程图纸', desc: '蓝图、等距3D、工程图' },
+  { id: 'origami', label: '折纸几何', desc: '折纸形态、几何感' },
+  { id: 'pixel-art', label: '像素艺术', desc: '复古8-bit、怀旧游戏' },
+  { id: 'ui-wireframe', label: 'UI 线框图', desc: '灰度框图、界面原型' },
+  { id: 'subway-map', label: '地铁线路图', desc: '彩色交通线网' },
+  { id: 'ikea-manual', label: '宜家说明书', desc: '极简线条、组装手册' },
+  { id: 'knolling', label: '平铺陈列', desc: '整齐平铺的俯视视觉' },
+  { id: 'lego-brick', label: '乐高积木', desc: '玩具颗粒拼搭块' }
+];

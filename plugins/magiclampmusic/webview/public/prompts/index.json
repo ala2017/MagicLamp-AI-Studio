@@ -1,0 +1,72 @@
+{
+    "version": "1.0",
+    "lastUpdated": "2026-01-23",
+    "algorithms": [
+        {
+            "id": "lyrics-optimize",
+            "file": "lyrics-optimize.json",
+            "name": "歌词润色算法",
+            "category": "lyrics",
+            "enabled": true
+        },
+        {
+            "id": "style-match",
+            "file": "style-match.json",
+            "name": "风格匹配算法",
+            "category": "style",
+            "enabled": true
+        },
+        {
+            "id": "suno-prompt-gen",
+            "file": "suno-prompt-gen.json",
+            "name": "Suno Prompt 生成器",
+            "category": "style",
+            "enabled": true
+        },
+        {
+            "id": "cover-suggest",
+            "file": "cover-suggest.json",
+            "name": "封面创意建议",
+            "category": "artwork",
+            "enabled": true
+        },
+        {
+            "id": "mv-script-gen",
+            "file": "mv-script-gen.json",
+            "name": "MV 脚本生成",
+            "category": "video",
+            "enabled": true
+        }
+    ],
+    "models": {
+        "available": [
+            {
+                "id": "deepseek-ai/deepseek-r1",
+                "name": "DeepSeek R1",
+                "provider": "NVIDIA NIM",
+                "recommended": true,
+                "description": "DeepSeek 第一代推理模型，逻辑能力极强"
+            },
+            {
+                "id": "meta/llama-3.1-70b-instruct",
+                "name": "Llama 3.1 70B",
+                "provider": "NVIDIA NIM",
+                "recommended": false,
+                "description": "Meta 开源旗舰，通用性好"
+            },
+            {
+                "id": "meta/llama-3.1-405b-instruct",
+                "name": "Llama 3.1 405B",
+                "provider": "NVIDIA NIM",
+                "recommended": false,
+                "description": "超大参数模型，知识库丰富"
+            }
+        ],
+        "default": "deepseek-ai/deepseek-r1"
+    },
+    "apiConfig": {
+        "provider": "NVIDIA NIM",
+        "baseUrl": "https://integrate.api.nvidia.com/v1/chat/completions",
+        "proxyPath": "/api/nvidia/v1/chat/completions"
+    }
+}

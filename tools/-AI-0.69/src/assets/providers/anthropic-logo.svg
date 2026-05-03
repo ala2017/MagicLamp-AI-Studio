@@ -1,0 +1,32 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 大脑形状 -->
+  <path d="M24 8C14 8 8 16 8 24C8 32 14 40 24 40C34 40 40 32 40 24C40 16 34 8 24 8Z" 
+    stroke="currentColor" 
+    stroke-width="2"
+    fill="none"
+  />
+  
+  <!-- 神经网络连接 -->
+  <path d="M16 24C16 24, 24 16, 32 24M16 20C16 20, 24 28, 32 20" 
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    opacity="0.6"
+  />
+  
+  <!-- 动态波纹 -->
+  <circle cx="24" cy="24" r="12" 
+    stroke="currentColor"
+    stroke-width="1"
+    stroke-dasharray="4 2"
+    fill="none"
+    opacity="0.3"
+  >
+    <animate
+      attributeName="r"
+      values="12;14;12"
+      dur="2s"
+      repeatCount="indefinite"
+    />
+  </circle>
+</svg> 

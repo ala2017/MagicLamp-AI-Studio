@@ -1,0 +1,405 @@
+:root {
+    --background-dark: #0a110a;
+    --panel-bg: #101c10;
+    --border-color: #00ff9933;
+    --primary-green: #00ff99;
+    --text-light: #e0f0e0;
+    --text-secondary: #a0b0a0;
+    --insert-bg: rgba(0, 255, 153, 0.15);
+    --delete-bg: rgba(255, 82, 82, 0.15);
+    --font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    background-color: var(--background-dark);
+    color: var(--text-light);
+    font-family: var(--font-family);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+}
+
+#app {
+    width: 100%;
+    height: 100%;
+    max-width: 1400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 0 30px var(--border-color);
+}
+
+header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.header-text {
+    text-align: right;
+}
+
+header h1 {
+    color: var(--primary-green);
+    font-size: 1.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 0;
+}
+
+header .producer {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+.comparison-container {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    overflow-y: hidden;
+}
+
+.panel {
+    background-color: var(--background-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.panel-header h2 {
+    font-size: 1.1rem;
+    color: var(--primary-green);
+}
+
+.panel-header p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.output-content {
+    padding: 1rem;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    flex-grow: 1;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.output-content .placeholder {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.diff-insert {
+    background-color: var(--insert-bg);
+    border-radius: 3px;
+}
+
+.diff-delete {
+    background-color: var(--delete-bg);
+    text-decoration: line-through;
+    border-radius: 3px;
+}
+
+.loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-style: italic;
+    color: var(--primary-green);
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+footer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.input-area {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+}
+
+.settings {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.settings label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+textarea {
+    flex-grow: 1;
+    background-color: var(--background-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    border-radius: 8px;
+    padding: 0.75rem;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: none;
+    transition: box-shadow 0.2s;
+}
+
+textarea:focus {
+    outline: none;
+    box-shadow: 0 0 10px var(--primary-green);
+}
+
+button {
+    background-color: var(--primary-green);
+    color: var(--background-dark);
+    border: none;
+    border-radius: 8px;
+    padding: 0.75rem 1.5rem;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    flex-shrink: 0;
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px #00ff9966;
+}
+
+button:disabled {
+    cursor: not-allowed;
+    background-color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+button.secondary {
+    background-color: transparent;
+    color: var(--primary-green);
+    border: 1px solid var(--primary-green);
+}
+
+button.secondary:hover:not(:disabled) {
+     background-color: var(--insert-bg);
+     box-shadow: 0 4px 15px #00ff9933;
+}
+
+.icon-button {
+    padding: 0.75rem;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+/* Custom Select Dropdown Styles */
+.custom-select-container {
+    position: relative;
+    width: 170px;
+}
+
+.custom-select-trigger {
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    border-radius: 4px;
+    padding: 0.5rem;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.custom-select-trigger .arrow {
+    border: solid var(--text-secondary);
+    border-width: 0 2px 2px 0;
+    display: inline-block;
+    padding: 3px;
+    transform: rotate(45deg);
+    transition: transform 0.2s ease;
+}
+
+.custom-select-container.open .arrow {
+    transform: rotate(-135deg);
+}
+
+.custom-select-options {
+    position: absolute;
+    bottom: calc(100% + 5px);
+    left: 0;
+    right: 0;
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+    list-style: none;
+    z-index: 10;
+    display: none; /* Hidden by default */
+}
+
+.custom-select-container.open .custom-select-options {
+    display: block;
+}
+
+.custom-select-option {
+    padding: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.custom-select-option:hover {
+    background-color: var(--insert-bg);
+}
+
+.custom-select-option.selected {
+    background-color: var(--primary-green);
+    color: var(--background-dark);
+    font-weight: bold;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: var(--panel-bg);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 30px var(--border-color);
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    max-height: 90vh; /* ensure modal fits in viewport */
+}
+
+.modal-content h2 {
+    color: var(--primary-green);
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    color: var(--text-secondary);
+}
+
+.form-group input, .form-group textarea {
+    width: 100%;
+    background: var(--background-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-light);
+    border-radius: 4px;
+    padding: 0.75rem;
+    font-family: inherit;
+    resize: vertical;
+}
+
+.api-key-note {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.modal-actions .tertiary {
+    margin-right: auto;
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    font-size: 0.9rem;
+    font-weight: normal;
+    padding: 0.5rem;
+}
+.modal-actions .tertiary:hover {
+    color: var(--primary-green);
+    text-decoration: underline;
+}
+
+
+.modal-actions button.secondary {
+    background-color: transparent;
+    color: var(--primary-green);
+    border: 1px solid var(--primary-green);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: var(--background-dark);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--primary-green);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #00e68a;
+}

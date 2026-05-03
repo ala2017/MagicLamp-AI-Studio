@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: http: data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http: https: chrome-extension:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>链接检查 - 神灯AI书签管理器</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/src/shared/styles/themes.css">
+    <link rel="stylesheet" href="/src/shared/styles/common.css">
+    <link rel="stylesheet" href="link-check.css">
+    <style>
+        /* 添加关键的根元素样式 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* 确保主容器占满视口 */
+        .main {
+            width: 100%;
+            min-height: calc(100vh - 64px - 50px); /* 减去头部和底部的高度 */
+            padding-top: 64px; /* 为固定的头部留出空间 */
+            box-sizing: border-box;
+        }
+        
+        /* 调试信息样式 */
+        #debug-info {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow: auto;
+            z-index: 9999;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏(由Web Components提供) -->
+    <nav-bar></nav-bar>
+
+    <main class="main">
+        <div class="check-container">
+            <section class="intro-section">
+                <h2>链接检查</h2>
+                <p class="description">此功能将检查您所有书签的链接是否可访问，智能识别失效链接，帮助您保持书签列表的整洁与有效。</p>
+            </section>
+            
+            <section class="check-controls-section">
+                <div class="check-controls">
+                    <button class="btn btn-primary btn-check" id="checkBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor"/>
+                        </svg>
+                        检查链接
+                    </button>
+                    <button class="btn btn-stop" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 6h12v12H6V6z" fill="currentColor"/>
+                        </svg>
+                        停止
+                    </button>
+                    <button class="btn btn-resume" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M8 5v14l11-7L8 5z" fill="currentColor"/>
+                        </svg>
+                        恢复
+                    </button>
+                    <button class="btn btn-restart" disabled>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 12h7V5l-2.35 1.35z" fill="currentColor"/>
+                        </svg>
+                        重新开始
+                    </button>
+                </div>
+            </section>
+            
+            <section class="check-status-container">
+                <div class="check-status">准备就绪</div>
+                <div class="check-progress">
+                    <div class="progress-bar">
+                        <div class="progress-inner" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text">
+                        <span class="current-url">-</span>
+                        <span class="stats">
+                            已完成: <span class="completed">0</span> / 
+                            总数: <span class="total">0</span> | 
+                            错误: <span class="error-count">0</span>
+                        </span>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="check-results">
+                <h3>问题书签列表<span class="check-tip">链接检查提示错误并不代表一定不能访问，建议手动检测进行确认</span></h3>
+                <div class="check-results-list">
+                    <!-- 结果将在这里动态生成 -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="copyright">© 2024 神灯AI书签管理器 | 全部书签均存储在本地</div>
+    </footer>
+
+    <!-- 调试信息面板 -->
+    <div id="debug-info"></div>
+
+    <!-- 导入导航栏组件 -->
+    <script src="/src/shared/components/nav-bar/nav-bar.js"></script>
+    
+    <!-- 导入业务逻辑 -->
+    <script src="link-check.js"></script>
+</body>
+</html> 

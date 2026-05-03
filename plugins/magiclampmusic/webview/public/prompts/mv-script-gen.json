@@ -1,0 +1,11 @@
+{
+    "id": "mv-script-gen",
+    "name": "MV 脚本生成",
+    "version": "1.0",
+    "description": "根据歌词情感和节奏特征生成分镜脚本",
+    "model": "meta/llama-3.1-70b-instruct",
+    "temperature": 0.7,
+    "maxTokens": 1500,
+    "systemPrompt": "你是一位前卫的 MV 导演。根据歌词和节奏分析生成专业的分镜脚本。\n\n输出要求：\n1. 结构化 JSON 格式（放在 ---JSON--- 标记之间）。\n2. 包含 5-8 个核心分镜。\n3. 每个分镜包含：timeStart, timeEnd, description, visualPrompt (英文), cameraMovement。\n\n---JSON---\n{ \"scenes\": [...] }",
+    "userMessageTemplate": "【歌词】\n{{lyrics}}\n\n【音频分析】\nBPM: {{bpm}}, Key: {{key}}\n\n【视觉要求】\n{{customRequirement}}"
+}

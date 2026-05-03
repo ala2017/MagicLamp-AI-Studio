@@ -1,0 +1,36 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "target": "ES2020",
+        "outDir": "out",
+        "lib": [
+            "ES2020",
+            "DOM"
+        ],
+        "sourceMap": true,
+        "rootDir": "src",
+        "strict": true,
+        "moduleResolution": "node",
+        "jsx": "react",
+        "esModuleInterop": true,
+        "skipLibCheck": true, /* Skip type checking of declaration files. */
+        "forceConsistentCasingInFileNames": true,
+        "baseUrl": ".",
+        "paths": {
+            "@shared/*": [
+                "src/shared/*"
+            ],
+            "@core/*": [
+                "src/core/*"
+            ],
+            "@webview/*": [
+                "src/webview/*"
+            ]
+        }
+    },
+    "exclude": [
+        "node_modules",
+        ".vscode-test",
+        "scripts"
+    ]
+}

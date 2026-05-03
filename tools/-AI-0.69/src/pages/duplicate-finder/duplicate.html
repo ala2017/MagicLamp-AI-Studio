@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: http: data:; font-src 'self' https://fonts.gstatic.com;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>查找重复书签 - 神灯AI书签管理器</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="/src/shared/styles/themes.css">
+    <link rel="stylesheet" href="/src/shared/styles/common.css">
+    <link rel="stylesheet" href="/src/pages/home/home.css">
+    <link rel="stylesheet" href="/src/pages/duplicate-finder/duplicate.css">
+    <style>
+        /* 添加关键的根元素样式，保持与首页一致 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏(由Web Components提供) -->
+    <nav-bar></nav-bar>
+
+    <!-- 主内容区域 -->
+    <main class="main">
+        <!-- 垂直居中容器 -->
+        <div class="center-container">
+            <!-- 重复查找容器 -->
+            <div class="duplicate-container">
+                <!-- 进度区域 -->
+                <div class="check-progress">
+                    <div class="progress-header">
+                        <div class="progress-title">查找进度</div>
+                        <div class="progress-tip">
+                            发现 <span class="group-count">0</span> 组重复书签
+                            · 共 <span class="duplicate-count">0</span> 个待处理
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-inner"></div>
+                    </div>
+                    <div class="progress-info">
+                        <div class="current-url">准备开始查找...</div>
+                        <div class="progress-stats">
+                            <span class="completed">0</span> / <span class="total">0</span>
+                        </div>
+                    </div>
+                    <div class="check-controls">
+                        <button class="control-btn btn-stop" disabled>
+                            <img src="/src/assets/icons/stop.svg" alt="" class="icon">
+                            终止查找
+                        </button>
+                        <button class="control-btn btn-restart">
+                            <img src="/src/assets/icons/refresh.svg" alt="" class="icon">
+                            重新查找
+                        </button>
+                        <button class="control-btn btn-batch" disabled>
+                            <img src="/src/assets/icons/batch.svg" alt="" class="icon">
+                            批量处理
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 分割线 -->
+                <div class="divider"></div>
+
+                <!-- 重复组列表 -->
+                <div class="duplicate-results">
+                    <!-- 重复组会通过JS动态插入 -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 导入导航栏组件 -->
+    <script src="/src/shared/components/nav-bar/nav-bar.js"></script>
+    
+    <!-- 导入业务逻辑 -->
+    <script src="/src/pages/duplicate-finder/duplicate.js"></script>
+</body>
+</html> 

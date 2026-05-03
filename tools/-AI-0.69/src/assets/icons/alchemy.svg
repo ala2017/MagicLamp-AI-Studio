@@ -1,0 +1,46 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 烧瓶 -->
+  <path d="M 12 3 L 12 8 L 18 18 C 18 20 6 20 6 18 L 12 8" 
+    stroke="currentColor" 
+    stroke-width="1.5" 
+    fill="none"
+  />
+  
+  <!-- 烧瓶颈部 -->
+  <path d="M 10 3 L 14 3" stroke="currentColor" stroke-width="1.5"/>
+  
+  <!-- 液体 -->
+  <path d="M 8 14 C 8 14, 12 12, 16 14 L 16 17 C 16 18, 8 18, 8 17 Z" 
+    fill="currentColor" 
+    opacity="0.5"
+  >
+    <animate
+      attributeName="d"
+      dur="2s"
+      repeatCount="indefinite"
+      values="
+        M 8 14 C 8 14, 12 12, 16 14 L 16 17 C 16 18, 8 18, 8 17 Z;
+        M 8 14 C 8 14, 12 16, 16 14 L 16 17 C 16 18, 8 18, 8 17 Z;
+        M 8 14 C 8 14, 12 12, 16 14 L 16 17 C 16 18, 8 18, 8 17 Z
+      "
+    />
+  </path>
+  
+  <!-- 气泡 -->
+  <circle cx="11" cy="15" r="0.5" fill="currentColor">
+    <animate
+      attributeName="cy"
+      dur="1.5s"
+      values="15;13;15"
+      repeatCount="indefinite"
+    />
+  </circle>
+  <circle cx="13" cy="16" r="0.5" fill="currentColor">
+    <animate
+      attributeName="cy"
+      dur="2s"
+      values="16;14;16"
+      repeatCount="indefinite"
+    />
+  </circle>
+</svg> 

@@ -1,0 +1,385 @@
+/* 模型设置页面样式 */
+
+/* 主容器样式 */
+.settings-container {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 30px;
+    background: var(--card-bg);
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    box-shadow: var(--card-shadow);
+}
+
+.settings-title {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-primary);
+    position: relative;
+    display: inline-block;
+}
+
+.settings-title::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--icon-model-config), var(--accent));
+    border-radius: 3px;
+}
+
+.settings-description {
+    color: var(--text-secondary);
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 30px;
+}
+
+/* 服务商模型设置 */
+.model-selection-container {
+    margin-bottom: 30px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* 标签页导航 */
+.model-tabs {
+    display: flex;
+    background: transparent;
+    border-bottom: 1px solid var(--glass-border);
+    width: 100%;
+    justify-content: space-between;
+}
+
+.model-tab {
+    flex: 1;
+    padding: 15px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    border-bottom: 3px solid transparent;
+    text-align: center;
+    color: var(--text-color);
+    margin: 0 2px;
+    border-radius: 8px 8px 0 0;
+}
+
+/* 为每个模型标签添加不同的背景颜色 - 增强颜色对比度 */
+.model-tab[data-provider="siliconio"] {
+    background-color: rgba(0, 150, 255, 0.2) !important;
+}
+
+.model-tab[data-provider="deepseek"] {
+    background-color: rgba(100, 100, 255, 0.2) !important;
+}
+
+.model-tab[data-provider="openai"] {
+    background-color: rgba(0, 200, 100, 0.2) !important;
+}
+
+.model-tab[data-provider="gemini"] {
+    background-color: rgba(100, 150, 255, 0.2) !important;
+}
+
+/* 悬停效果 */
+.model-tab:hover {
+    background-color: rgba(255, 255, 255, 0.25) !important;
+    transform: translateY(-2px);
+}
+
+/* 激活状态 - 增强颜色对比度 */
+.model-tab.active[data-provider="siliconio"] {
+    background-color: rgba(0, 150, 255, 0.4) !important;
+    border-bottom: 3px solid #0096ff !important;
+    box-shadow: 0 -2px 8px rgba(0, 150, 255, 0.2);
+}
+
+.model-tab.active[data-provider="deepseek"] {
+    background-color: rgba(100, 100, 255, 0.4) !important;
+    border-bottom: 3px solid #6464ff !important;
+    box-shadow: 0 -2px 8px rgba(100, 100, 255, 0.2);
+}
+
+.model-tab.active[data-provider="openai"] {
+    background-color: rgba(0, 200, 100, 0.4) !important;
+    border-bottom: 3px solid #00c864 !important;
+    box-shadow: 0 -2px 8px rgba(0, 200, 100, 0.2);
+}
+
+.model-tab.active[data-provider="gemini"] {
+    background-color: rgba(100, 150, 255, 0.4) !important;
+    border-bottom: 3px solid #6496ff !important;
+    box-shadow: 0 -2px 8px rgba(100, 150, 255, 0.2);
+}
+
+/* 图标样式 */
+.provider-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 8px;
+    object-fit: contain;
+    display: inline-block !important;
+    vertical-align: middle;
+}
+
+.selected-model-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    font-size: 10px;
+    background: var(--icon-model-config);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 10px;
+    display: none;
+}
+
+.model-tab.selected .selected-model-badge {
+    display: block;
+}
+
+/* 标签内容区域 */
+.model-tab-content {
+    padding: 20px;
+    display: none;
+}
+
+.model-tab-content.active {
+    display: block;
+}
+
+.provider-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+/* Logo样式 */
+.provider-logo {
+    width: 40px;
+    height: 40px;
+    margin-right: 15px;
+    object-fit: contain;
+}
+
+.provider-header h3 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.provider-form {
+    max-width: 600px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.input-with-action {
+    position: relative;
+    display: flex;
+}
+
+.api-key-input {
+    width: 100%;
+    padding: 12px 40px 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.api-key-input:focus {
+    border-color: var(--icon-model-config);
+    box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2);
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    padding: 5px;
+}
+
+.eye-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 24 24'%3E%3Cpath d='M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z'/%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.model-select {
+    width: 100%;
+    padding: 12px 15px;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23999' viewBox='0 0 24 24'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: all 0.3s ease;
+}
+
+.model-select:focus {
+    border-color: var(--icon-model-config);
+    box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.2);
+}
+
+.form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 24px;
+}
+
+.test-model-btn, .save-model-btn {
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+}
+
+.test-model-btn {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+}
+
+.test-model-btn:hover {
+    background: var(--glass-border);
+}
+
+.save-model-btn, .primary {
+    background: linear-gradient(135deg, var(--icon-model-config), var(--accent));
+    color: white;
+    flex: 1;
+}
+
+.save-model-btn:hover, .primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(244, 63, 94, 0.3);
+}
+
+/* 通知样式 */
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: var(--glass-shadow);
+    z-index: 1000;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: notification-show 0.3s forwards;
+}
+
+.notification.info {
+    border-left: 4px solid var(--info);
+}
+
+.notification.success {
+    border-left: 4px solid var(--success);
+}
+
+.notification.error {
+    border-left: 4px solid var(--accent);
+}
+
+.notification.fade-out {
+    animation: notification-hide 0.5s forwards;
+}
+
+@keyframes notification-show {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes notification-hide {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .settings-container {
+        padding: 20px;
+        margin: 10px;
+    }
+    
+    .model-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .model-tab {
+        flex: 1 0 50%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .test-model-btn, .save-model-btn {
+        width: 100%;
+    }
+}
+
+/* 已选标记样式 */
+.model-tab .selected-badge {
+    display: none;
+    background-color: #4CAF50;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-left: 8px;
+    position: absolute;
+    top: 5px;
+    right: 5px;
+}
+
+/* 只在选中时显示已选标记 */
+.model-tab.selected .selected-badge {
+    display: inline-block;
+} 

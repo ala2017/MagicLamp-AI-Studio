@@ -1,0 +1,255 @@
+/* 量子云图样式 */
+
+/* 控制面板样式 */
+.controls-panel {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: var(--bg-secondary, #1e293b);
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    max-width: 220px; /* 限制最大宽度 */
+    opacity: 0.85; /* 半透明效果 */
+    transition: opacity 0.3s ease;
+}
+
+.controls-panel:hover {
+    opacity: 1; /* 鼠标悬停时完全不透明 */
+}
+
+.control-group {
+    margin-bottom: 10px;
+}
+
+.control-group:last-child {
+    margin-bottom: 0;
+}
+
+.control-group label {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--text-primary, rgba(255, 255, 255, 0.95));
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.slider-container {
+    display: flex;
+    align-items: center;
+}
+
+.slider-container input[type="range"] {
+    flex: 1;
+    margin-right: 8px;
+    margin-bottom: 0;
+}
+
+.slider-container span {
+    min-width: 20px;
+    text-align: right;
+    font-size: 12px;
+}
+
+.control-group input[type="range"] {
+    width: 100%;
+    margin-bottom: 5px;
+    height: 6px;
+}
+
+.button-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+}
+
+.btn-sm {
+    padding: 4px 8px;
+    font-size: 11px;
+    margin-right: 0;
+    background-color: var(--bg-tertiary, #334155);
+    color: var(--text-primary, rgba(255, 255, 255, 0.95));
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.btn-sm:hover {
+    background-color: var(--primary, #8b5cf6);
+    transform: scale(1.05);
+}
+
+/* 刷新按钮样式 */
+.btn-refresh {
+    background-color: var(--info, #06b6d4);
+    color: white;
+    grid-column: span 2; /* 占据两列 */
+    margin-top: 5px;
+}
+
+/* 节点样式 */
+.node {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.node circle {
+    fill: var(--primary, #8b5cf6);
+    stroke: var(--bg-primary, #0f172a);
+    stroke-width: 2px;
+    transition: all 0.3s ease;
+}
+
+.node text {
+    font-size: 12px;
+    fill: var(--text-primary, rgba(255, 255, 255, 0.95));
+    text-anchor: middle;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.node:hover circle {
+    fill: var(--accent, #f43f5e);
+    r: 1.2em;
+}
+
+/* 书签图标样式 */
+.node.bookmark .bookmark-icon {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.2));
+}
+
+.node.bookmark .bookmark-bg {
+    transition: all 0.3s ease;
+}
+
+.node.bookmark:hover .bookmark-icon {
+    transform: scale(1.2);
+    filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
+}
+
+.node.bookmark:hover .bookmark-bg {
+    fill: rgba(255, 255, 255, 0.25);
+    transform: scale(1.1);
+}
+
+.node.folder circle {
+    fill: var(--folder-color, var(--primary, #8b5cf6));
+}
+
+.node.bookmark circle {
+    fill: var(--bookmark-color, var(--secondary, #3b82f6));
+    r: 0.6em;
+}
+
+.node.expanded circle {
+    stroke: var(--accent, #f43f5e);
+    stroke-width: 3px;
+}
+
+/* 连接线样式 */
+.link {
+    fill: none;
+    stroke: var(--link-color, #555);
+    stroke-opacity: 0.4;
+    stroke-width: 1.5px;
+    transition: all 0.3s ease;
+}
+
+.link:hover {
+    stroke-opacity: 0.8;
+    stroke-width: 2.5px;
+}
+
+/* 工具提示样式 */
+.tooltip {
+    position: absolute;
+    padding: 10px;
+    background-color: var(--bg-secondary, #1e293b);
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+    z-index: 1000;
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.tooltip.visible {
+    opacity: 1;
+}
+
+.tooltip .title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: var(--text-primary, rgba(255, 255, 255, 0.95));
+}
+
+.tooltip .url {
+    font-size: 12px;
+    color: var(--text-secondary, rgba(255, 255, 255, 0.7));
+    word-break: break-all;
+}
+
+/* 动画效果 */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.node.pulse circle {
+    animation: pulse 1s infinite;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .controls-panel {
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+    }
+    
+    .node text {
+        font-size: 10px;
+    }
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* 颜色变量 - 将在JS中动态设置 */
+:root {
+    --folder-color-1: #4285F4;
+    --folder-color-2: #EA4335;
+    --folder-color-3: #FBBC05;
+    --folder-color-4: #34A853;
+    --folder-color-5: #8E44AD;
+    --folder-color-6: #16A085;
+    --folder-color-7: #D35400;
+    --folder-color-8: #2C3E50;
+} 

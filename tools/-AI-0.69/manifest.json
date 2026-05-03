@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "神灯AI书签管理器",
+  "version": "0.72",
+  "description": "一个智能的Chrome书签管理器，支持AI分类、智能推荐、链接检查等功能",
+  "author": "your_name",
+  "minimum_chrome_version": "88",
+  "web_accessible_resources": [{
+    "resources": [
+      "src/pages/*/*.html",
+      "src/pages/*/*.js",
+      "src/pages/*/*.css",
+      "src/shared/**/*",
+      "src/assets/**/*"
+    ],
+    "matches": ["<all_urls>"]
+  }],
+  "permissions": [
+    "bookmarks",
+    "history",
+    "storage",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "action": {
+    "default_icon": {
+      "16": "src/assets/icons/icon16.png",
+      "32": "src/assets/icons/icon32.png",
+      "48": "src/assets/icons/icon48.png",
+      "128": "src/assets/icons/icon128.png"
+    }
+  },
+  "chrome_url_overrides": {
+    "newtab": "src/pages/home/home.html"
+  },
+  "background": {
+    "service_worker": "src/background.js",
+    "type": "module"
+  },
+  "icons": {
+    "16": "src/assets/icons/icon16.png",
+    "32": "src/assets/icons/icon32.png",
+    "48": "src/assets/icons/icon48.png",
+    "128": "src/assets/icons/icon128.png"
+  }
+} 

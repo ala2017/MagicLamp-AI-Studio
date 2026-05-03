@@ -1,0 +1,15 @@
+.relationGraphContainer {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+} 

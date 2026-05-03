@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skill Cockpit UI Preview</title>
+
+    <!-- 1. The Savior Polyfill: Must be first -->
+    <script>
+        window.process = {
+            env: { NODE_ENV: 'development' },
+            platform: 'browser',
+            cwd: () => '/'
+        };
+    </script>
+
+    <!-- 2. Error Trap -->
+    <script>
+        window.onerror = function (msg, url, line) {
+            console.error('CRITICAL ERROR:', msg);
+        };
+    </script>
+
+    <style>
+        body {
+            background-color: #050b14;
+            color: #ccc;
+            margin: 0;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root">
+        <div
+            style="height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+            <div style="font-size: 24px; color: #00f3ff; font-family: monospace;">INITIALIZING COCKPIT...</div>
+            <div style="margin-top: 10px; opacity: 0.5;">Scanning Local Skills...</div>
+        </div>
+    </div>
+
+    <!-- 3. Mock VS Code API SMART -->
+    <script>
+        window.acquireVsCodeApi = () => ({
+            postMessage: (msg) => {
+                console.log('[Webview -> Host]', msg);
+
+                if (msg.command === 'app.init' || msg.command === 'skills.refresh') {
+
+                    // TRY TO FETCH REAL SCANNED DATA
+                    // Note: We use a timestamp to prevent caching of the data file
+                    fetch('./dist/real_skills.json?t=' + Date.now())
+                        .then(res => {
+                            if (!res.ok) throw new Error('File not found');
+                            return res.json();
+                        })
+                        .then(realSkills => {
+                            console.log('[Preview] Loaded REAL skills from scan:', realSkills);
+                            window.postMessage({
+                                type: 'state.update',
+                                state: {
+                                    installedSkills: realSkills,
+                                    availableSkills: [],
+                                    registries: [],
+                                    globalSecurityLevel: 'standard'
+                                }
+                            }, '*');
+                        })
+                        .catch(err => {
+                            console.warn('[Preview] Could not load real data, falling back to mock.', err);
+                            // Fallback Mock
+                            setTimeout(() => {
+                                window.postMessage({
+                                    type: 'state.update',
+                                    state: {
+                                        installedSkills: [
+                                            { id: 'scan-failed', name: 'Scan Failed (Demo)', type: 'skill', version: '0.0.0', scope: 'local', enabled: false, description: 'Could not load real_skills.json' }
+                                        ],
+                                        availableSkills: [],
+                                        registries: [],
+                                        globalSecurityLevel: 'standard'
+                                    }
+                                }, '*');
+                            }, 500);
+                        });
+
+                } else if (msg.command === 'skills.save') {
+                    console.log('Mock Save:', msg.skill);
+                } else if (msg.command === 'navigate') {
+                    console.log('Mock Navigate:', msg.page);
+                }
+            }
+        });
+    </script>
+
+    <!-- 4. Load App -->
+    <script>
+        const script = document.createElement('script');
+        script.src = `./dist/webview.js?t=${Date.now()}`;
+        document.body.appendChild(script);
+    </script>
+</body>
+
+</html>

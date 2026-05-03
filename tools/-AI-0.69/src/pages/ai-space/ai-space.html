@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI辅助功能 - 神灯AI书签管理器</title>
+    <link rel="stylesheet" href="/src/shared/styles/fonts.css">
+    <link rel="stylesheet" href="/src/shared/styles/themes.css">
+    <link rel="stylesheet" href="/src/shared/styles/common.css">
+    <link rel="stylesheet" href="/src/pages/ai-space/ai-space.css">
+    <link rel="stylesheet" href="/src/pages/ai-space/model-config/model-settings.css">
+    <style>
+        /* 添加关键的根元素样式 */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        /* 确保主容器占满视口 */
+        .main {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* 调试信息样式 */
+        #debug-info {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow: auto;
+            z-index: 9999;
+            display: none;
+        }
+    </style>
+</head>
+<body class="ai-space-page">
+    <!-- 顶部导航栏 -->
+    <header class="header">
+        <div class="brand">
+            <h1>神灯AI书签管理器</h1>
+            <span class="version">v0.72</span>
+        </div>
+
+        <div class="stats">
+            <div class="stat-item">
+                <img src="/src/assets/icons/bookmark.svg" alt="书签" class="icon">
+                <span class="stat-count" id="totalBookmarks">0</span>
+                <span class="stat-label">书签总数</span>
+            </div>
+            <div class="stat-item">
+                <img src="/src/assets/icons/folder.svg" alt="文件夹" class="icon">
+                <span class="stat-count" id="totalFolders">0</span>
+                <span class="stat-label">目录总数</span>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-random" id="randomBookmark" title="随机书签">
+                <img src="/src/assets/icons/dice_icon32.png" alt="" class="icon">
+            </button>
+            <button class="btn btn-primary" id="homeBtn">
+                <img src="/src/assets/icons/home.svg" alt="" class="icon">
+                首页
+            </button>
+            <button class="btn btn-success" id="checkBtn">
+                <img src="/src/assets/icons/check.svg" alt="" class="icon">
+                检查链接
+            </button>
+            <button class="btn btn-warning" id="duplicateBtn">
+                <img src="/src/assets/icons/find.svg" alt="" class="icon">
+                查找重复
+            </button>
+            <button class="btn btn-info active" id="aiAssistant">
+                <img src="/src/assets/icons/ai.svg" alt="" class="icon">
+                AI辅助
+            </button>
+            
+            <div class="utils">
+                <button class="btn-icon" id="themeToggle" title="切换主题">
+                    <img src="/src/assets/icons/theme.svg" alt="主题" class="icon">
+                </button>
+                <button class="btn-icon" id="langToggle" title="切换语言">中</button>
+                <button class="btn-icon" id="settings" title="设置">
+                    <img src="/src/assets/icons/settings.svg" alt="设置" class="icon">
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主要内容区域 -->
+    <div class="ai-space-content">
+        <!-- 左侧菜单 -->
+        <aside class="sidebar">
+            <h1 class="ai-title">AI辅助功能</h1>
+            <nav class="sidebar-nav">
+                <button class="sidebar-item active" id="cloudMapBtn">
+                    <div class="sidebar-icon">
+                        <img src="/src/assets/icons/cloud-map.svg" alt="量子云图" class="icon">
+                    </div>
+                    <span class="sidebar-label">量子云图</span>
+                </button>
+                
+                <button class="sidebar-item" id="hyperTagsBtn">
+                    <div class="sidebar-icon">
+                        <img src="/src/assets/icons/hyper-tags.svg" alt="超维标签" class="icon">
+                    </div>
+                    <span class="sidebar-label">超维标签</span>
+                </button>
+                
+                <button class="sidebar-item" id="dataAnalysisBtn">
+                    <div class="sidebar-icon">
+                        <img src="/src/assets/icons/data-analysis.svg" alt="数字炼金石" class="icon">
+                    </div>
+                    <span class="sidebar-label">数字炼金石</span>
+                </button>
+                
+                <button class="sidebar-item" id="autoClusterBtn">
+                    <div class="sidebar-icon">
+                        <img src="/src/assets/icons/auto-cluster.svg" alt="智能聚合" class="icon">
+                    </div>
+                    <span class="sidebar-label">智能聚合</span>
+                </button>
+                
+                <button class="sidebar-item" id="modelConfigBtn">
+                    <div class="sidebar-icon">
+                        <div class="icon"></div>
+                    </div>
+                    <span class="sidebar-label">模型设置</span>
+                </button>
+            </nav>
+        </aside>
+        
+        <!-- 右侧主内容区域 -->
+        <section class="content-area">
+            <div class="content-container" id="cloudMapContent">
+                <h2 class="content-title">量子云图</h2>
+                <div class="content-description">
+                    <p>智能分析书签内容，生成可视化知识图谱，帮助您发现书签之间的关联和知识结构。</p>
+                </div>
+                <div id="cloud-map-container"></div>
+            </div>
+            
+            <div class="content-container hidden" id="hyperTagsContent">
+                <h2 class="content-title">超维标签</h2>
+                <div class="content-description">
+                    <p>自动为书签生成标签，提升分类和检索效率，让您的书签组织更加智能化。</p>
+                </div>
+                <div class="content-placeholder">
+                    <div class="placeholder-icon">
+                        <img src="/src/assets/icons/hyper-tags.svg" alt="超维标签" class="icon">
+                    </div>
+                    <div class="placeholder-text">选择左侧功能开始使用</div>
+                </div>
+            </div>
+            
+            <div class="content-container hidden" id="dataAnalysisContent">
+                <h2 class="content-title">数字炼金石</h2>
+                <div class="content-description">
+                    <p>深度分析书签数据，挖掘潜在价值和关联，将您的书签转化为有价值的知识资产。</p>
+                </div>
+                <div class="content-placeholder">
+                    <div class="placeholder-icon">
+                        <img src="/src/assets/icons/data-analysis.svg" alt="数字炼金石" class="icon">
+                    </div>
+                    <div class="placeholder-text">选择左侧功能开始使用</div>
+                </div>
+            </div>
+            
+            <div class="content-container hidden" id="autoClusterContent">
+                <h2 class="content-title">智能聚合</h2>
+                <div class="content-description">
+                    <p>自动对书签进行主题聚类，发现内容关联，帮助您更好地组织和理解书签集合。</p>
+                </div>
+                <div class="content-placeholder">
+                    <div class="placeholder-icon">
+                        <img src="/src/assets/icons/auto-cluster.svg" alt="智能聚合" class="icon">
+                    </div>
+                    <div class="placeholder-text">选择左侧功能开始使用</div>
+                </div>
+            </div>
+            
+            <!-- 模型设置容器 -->
+            <div class="content-container hidden" id="modelConfigContent">
+                <h2 class="content-title">模型设置</h2>
+                <div class="content-description">
+                    <p>配置AI模型参数，选择合适的服务提供商和模型，优化AI辅助功能的表现。</p>
+                </div>
+                <!-- 模型设置内容将通过JavaScript动态加载 -->
+            </div>
+        </section>
+    </div>
+
+    <!-- 调试信息面板 -->
+    <div id="debug-info"></div>
+
+    <!-- 导入脚本 -->
+    <script src="/src/pages/ai-space/ai-space.js"></script>
+    <script src="/src/shared/utils/notification-helper.js"></script>
+    <script src="/src/shared/utils/debug-helper.js"></script>
+</body>
+</html>

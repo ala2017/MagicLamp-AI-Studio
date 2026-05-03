@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: http: data:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' http: https: chrome-extension:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>链接检查测试 - 神灯AI书签管理器</title>
+    <link rel="stylesheet" href="link-check.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        
+        .test-controls {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+        
+        .test-input {
+            display: flex;
+            margin-bottom: 1rem;
+        }
+        
+        .test-input input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            margin-right: 0.5rem;
+        }
+        
+        .test-input button {
+            padding: 0.5rem 1rem;
+            background-color: #4a89dc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .test-links {
+            margin-bottom: 1rem;
+        }
+        
+        .test-link {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-link button {
+            margin-left: 0.5rem;
+            padding: 0.25rem 0.5rem;
+            background-color: #4a89dc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>链接检查测试</h1>
+    
+    <div class="test-controls">
+        <div class="test-input">
+            <input type="text" id="test-url" placeholder="输入URL进行测试" value="https://www.example.com">
+            <button id="btn-check-single">检查链接</button>
+        </div>
+        
+        <div class="test-links">
+            <h3>预设测试链接:</h3>
+            <div class="test-link">
+                <span>有效链接: </span>
+                <a href="https://www.baidu.com" target="_blank">https://www.baidu.com</a>
+                <button class="btn-test" data-url="https://www.baidu.com">测试</button>
+            </div>
+            <div class="test-link">
+                <span>需要授权: </span>
+                <a href="https://github.com/settings" target="_blank">https://github.com/settings</a>
+                <button class="btn-test" data-url="https://github.com/settings">测试</button>
+            </div>
+            <div class="test-link">
+                <span>无效链接: </span>
+                <a href="https://example.com/notfound-page-404" target="_blank">https://example.com/notfound-page-404</a>
+                <button class="btn-test" data-url="https://example.com/notfound-page-404">测试</button>
+            </div>
+            <div class="test-link">
+                <span>不存在域名: </span>
+                <a href="https://this-domain-does-not-exist-123456789.com" target="_blank">https://this-domain-does-not-exist-123456789.com</a>
+                <button class="btn-test" data-url="https://this-domain-does-not-exist-123456789.com">测试</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="check-progress" style="display:none;">
+        <div class="progress-info">
+            <span>已检查: <span class="checked-count">0</span>/<span class="total-count">0</span></span>
+            <span>发现问题: <span class="error-count">0</span></span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar"></div>
+        </div>
+    </div>
+    
+    <div class="check-status info">准备检查</div>
+    
+    <div class="check-results">
+        <div class="current-url">请选择链接进行测试</div>
+        <div class="check-results-list"></div>
+    </div>
+    
+    <script>
+        // 引入链接检查功能
+        document.addEventListener('DOMContentLoaded', function() {
+            // 暂存模拟书签对象
+            let testBookmark = null;
+            
+            // 获取DOM元素
+            const testUrlInput = document.getElementById('test-url');
+            const checkSingleBtn = document.getElementById('btn-check-single');
+            const testButtons = document.querySelectorAll('.btn-test');
+            const progressElement = document.querySelector('.check-progress');
+            const statusElement = document.querySelector('.check-status');
+            const currentUrlElement = document.querySelector('.current-url');
+            const resultsListElement = document.querySelector('.check-results-list');
+            
+            // 设置checkElements全局对象 (供link-check.js使用)
+            window.checkElements = {
+                progress: progressElement,
+                status: statusElement,
+                currentUrl: currentUrlElement,
+                results: document.querySelector('.check-results'),
+                resultsList: resultsListElement
+            };
+            
+            // 加载link-check.js
+            const script = document.createElement('script');
+            script.src = 'link-check.js';
+            document.head.appendChild(script);
+            
+            // 单个URL测试
+            checkSingleBtn.addEventListener('click', function() {
+                const url = testUrlInput.value.trim();
+                if (url) {
+                    testUrl(url);
+                }
+            });
+            
+            // 预设测试按钮
+            testButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const url = this.getAttribute('data-url');
+                    testUrlInput.value = url;
+                    testUrl(url);
+                });
+            });
+            
+            // 测试单个URL
+            function testUrl(url) {
+                // 清空之前的结果
+                resultsListElement.innerHTML = '';
+                
+                // 创建模拟书签对象
+                testBookmark = {
+                    id: 'test-' + Date.now(),
+                    title: 'Test Bookmark',
+                    url: url
+                };
+                
+                // 显示当前测试的URL
+                currentUrlElement.textContent = url;
+                
+                // 显示进度条
+                progressElement.style.display = 'block';
+                
+                // 重置计数器
+                document.querySelector('.checked-count').textContent = '0';
+                document.querySelector('.total-count').textContent = '1';
+                document.querySelector('.error-count').textContent = '0';
+                
+                // 更新状态
+                statusElement.textContent = '正在检查链接...';
+                statusElement.className = 'check-status info';
+                
+                // 设置全局进度对象 (供link-check.js使用)
+                window.checkProgress = {
+                    checked: 0,
+                    total: 1,
+                    errors: 0
+                };
+                
+                // 等待link-check.js加载完成
+                setTimeout(() => {
+                    // 确保checkLink函数已加载
+                    if (typeof checkLink === 'function') {
+                        // 执行检查
+                        checkLink(url)
+                            .then(result => {
+                                // 将URL加到结果对象中
+                                result.url = url;
+                                result.bookmarkId = testBookmark.id;
+                                result.title = testBookmark.title;
+                                
+                                console.log('检查结果:', result);
+                                
+                                // 更新UI
+                                updateLinkCheckUI(result);
+                                
+                                // 更新进度
+                                document.querySelector('.checked-count').textContent = '1';
+                                
+                                // 更新状态
+                                statusElement.textContent = '检查完成';
+                                statusElement.className = 'check-status success';
+                            })
+                            .catch(error => {
+                                console.error('检查过程出错:', error);
+                                statusElement.textContent = '检查出错: ' + error.message;
+                                statusElement.className = 'check-status error';
+                            });
+                    } else {
+                        statusElement.textContent = '脚本加载失败，无法执行检查';
+                        statusElement.className = 'check-status error';
+                    }
+                }, 500);
+            }
+        });
+    </script>
+</body>
+</html> 

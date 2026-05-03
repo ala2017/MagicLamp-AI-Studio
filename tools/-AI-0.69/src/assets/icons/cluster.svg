@@ -1,0 +1,33 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- 中心节点 -->
+  <circle cx="12" cy="12" r="3" fill="currentColor"/>
+  
+  <!-- 连接线 -->
+  <path d="M12 9v-4M12 19v-4M15 12h4M5 12h4" 
+    stroke="currentColor" 
+    stroke-width="1.5"
+  />
+  
+  <!-- 外围节点 -->
+  <circle cx="12" cy="5" r="2" fill="currentColor" opacity="0.7"/>
+  <circle cx="12" cy="19" r="2" fill="currentColor" opacity="0.7"/>
+  <circle cx="19" cy="12" r="2" fill="currentColor" opacity="0.7"/>
+  <circle cx="5" cy="12" r="2" fill="currentColor" opacity="0.7"/>
+  
+  <!-- 动画效果 -->
+  <circle cx="12" cy="12" r="8" 
+    stroke="currentColor" 
+    stroke-width="1" 
+    stroke-dasharray="4 2"
+    opacity="0.3"
+  >
+    <animateTransform
+      attributeName="transform"
+      type="rotate"
+      from="0 12 12"
+      to="360 12 12"
+      dur="10s"
+      repeatCount="indefinite"
+    />
+  </circle>
+</svg> 

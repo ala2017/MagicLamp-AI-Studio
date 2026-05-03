@@ -1,0 +1,28 @@
+.panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+  padding: 32px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  backdrop-filter: blur(20px);
+  margin-bottom: 48px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.value {
+  font-size: 32px;
+  font-weight: bold;
+  background: linear-gradient(135deg, #4F8FFE, #18C8FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+
+.label {
+  font-size: 14px;
+  color: var(--text-secondary);
+} 

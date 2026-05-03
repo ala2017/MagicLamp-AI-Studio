@@ -1,0 +1,555 @@
+/* 内容区域 - 恢复与首页一致的样式，不再强制设置 */
+.main {
+    position: fixed;
+    top: 64px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--bg-primary, #0f172a);
+}
+
+/* 新增：垂直居中容器 */
+.center-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 16px;
+}
+
+/* 重复查找容器 */
+.duplicate-container {
+    width: 100%;
+    max-width: 1280px;
+    height: 90vh;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px 16px;
+    margin: 0;
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    position: relative;
+}
+
+/* 进度区域 */
+.duplicate-container .check-progress {
+    flex-shrink: 0;
+    height: auto;
+    min-height: 110px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    margin-bottom: 0;
+}
+
+/* 分割线容器 */
+.duplicate-container .divider {
+    height: 1px;
+    margin: 4px 0;
+    background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.08) 50%,
+        transparent 100%
+    );
+    flex-shrink: 0;
+}
+
+/* 进度标题区 */
+.progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px !important; /* 减少底部间距 */
+}
+
+.progress-title {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.progress-tip {
+    font-size: 12px;
+    position: relative;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.95) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0.95) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 4s linear infinite;
+}
+
+.progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+    margin: 10px 0 !important; /* 减少外边距 */
+}
+
+.progress-inner {
+    height: 100%;
+    width: 0;
+    background: var(--primary-color);
+    transition: width 0.3s ease;
+}
+
+.progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    margin-bottom: 12px !important; /* 减少底部间距 */
+}
+
+.current-url {
+    color: var(--text-color);
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.progress-stats {
+    white-space: nowrap;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.error-count {
+    color: var(--warning-color);
+    margin-left: 8px;
+}
+
+/* 控制按钮组 */
+.check-controls {
+    display: flex;
+    gap: 12px;
+    padding-top: 10px !important; /* 减少顶部内边距 */
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.control-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-color);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+    font-weight: 500;
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    transform: none !important;
+}
+
+.control-btn:not(:disabled):hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+
+.control-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.control-btn:not(:disabled):hover::before {
+    opacity: 0.15;
+}
+
+.btn-stop {
+    color: #FFF;
+    background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+}
+
+.btn-stop::before {
+    background: linear-gradient(135deg, #FF6B6B 0%, #FF4B2B 100%);
+}
+
+.btn-restart {
+    color: #FFF;
+    background: linear-gradient(135deg, #2196F3 0%, #4FC3F7 100%);
+}
+
+.btn-restart::before {
+    background: linear-gradient(135deg, #42A5F5 0%, #4FC3F7 100%);
+}
+
+.btn-batch {
+    color: #FFF;
+    background: linear-gradient(135deg, #9C27B0 0%, #CE93D8 100%);
+}
+
+.btn-batch::before {
+    background: linear-gradient(135deg, #AB47BC 0%, #CE93D8 100%);
+}
+
+.control-btn .icon {
+    width: 16px;
+    height: 16px;
+    filter: brightness(100);
+    opacity: 0.9;
+    transition: all 0.3s ease;
+}
+
+.control-btn:hover .icon {
+    opacity: 1;
+    transform: scale(1.05);
+}
+
+/* 重复组列表 */
+.duplicate-results {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 5px 8px 8px 0;
+    margin-right: -8px;
+    scrollbar-gutter: stable;
+}
+
+/* 自定义滚动条 */
+.duplicate-results::-webkit-scrollbar {
+    width: 6px;
+}
+
+.duplicate-results::-webkit-scrollbar-track {
+    background: transparent;
+    margin: 4px 0;
+}
+
+.duplicate-results::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    transition: background 0.3s ease;
+}
+
+.duplicate-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* 浅色主题滚动条 */
+:root[data-theme="light"] .duplicate-results::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+:root[data-theme="light"] .duplicate-results::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+}
+
+/* 重复组卡片 */
+.duplicate-group {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    margin-bottom: 4px;
+}
+
+.group-header {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.15);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.group-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.group-action-btn {
+    padding: 3px 6px;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text-color);
+    background: rgba(255, 255, 255, 0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.group-action-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-1px);
+}
+
+.duplicate-items {
+    display: flex;
+    flex-direction: column;
+    max-height: 100%; /* 确保不会溢出容器 */
+}
+
+.duplicate-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s ease;
+}
+
+.duplicate-item:last-child {
+    border-bottom: none;
+}
+
+.duplicate-item:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.item-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item-title {
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text-color);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.item-path {
+    font-size: 12px;
+    line-height: 1.3;
+    color: var(--text-color);
+    opacity: 0.6;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.item-path:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+}
+
+.item-meta {
+    font-size: 10px;
+    line-height: 1.2;
+    color: var(--text-color);
+    opacity: 0.5;
+}
+
+.item-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #FF416C 0%, #FF4B2B 100%);
+    color: white;
+    font-weight: 500;
+    padding: 4px 10px;
+    box-shadow: 0 2px 4px rgba(255, 65, 108, 0.2);
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #FF5483 0%, #FF624B 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 65, 108, 0.3);
+}
+
+/* 删除动画 */
+@keyframes itemDelete {
+    0% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translateX(30px);
+    }
+    100% {
+        opacity: 0;
+        transform: translateX(-100%);
+        height: 0;
+        padding: 0;
+        margin: 0;
+    }
+}
+
+.deleting {
+    animation: itemDelete 0.5s ease forwards;
+}
+
+/* 批量操作菜单 */
+.batch-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 8px 0;
+    min-width: 200px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    z-index: 100;
+    display: none;
+}
+
+.batch-menu.show {
+    display: block;
+}
+
+.batch-menu-item {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.batch-menu-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* 统计数字样式 */
+.group-count,
+.duplicate-count {
+    font-family: 'Monaco', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0 2px;
+    position: relative;
+    background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 1) 50%,
+        var(--primary-color) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shine 4s linear infinite;
+}
+
+/* 流光动画 */
+@keyframes shine {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* 浅色主题下的统计数字 */
+:root[data-theme="light"] .group-count,
+:root[data-theme="light"] .duplicate-count {
+    background: linear-gradient(
+        90deg,
+        rgba(130, 177, 255, 1) 50%,
+        #4A90E2 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* 浅色主题下的提示文字 */
+:root[data-theme="light"] .progress-tip {
+    background: linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.85) 0%,
+        rgba(0, 0, 0, 0.4) 50%,
+        rgba(0, 0, 0, 0.85) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* 空状态 */
+.empty-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 300px; /* 增加高度，确保垂直居中 */
+    color: var(--text-color-light);
+    text-align: center;
+    font-size: 16px;
+    line-height: 1.5;
+    opacity: 0.6;
+    margin-top: 20px; /* 确保与上方元素有足够空间 */
+}
+
+.empty-message::before {
+    content: '🔍';
+    font-size: 32px;
+    margin-bottom: 16px;
+}
+
+/* 适配小屏幕 */
+@media (max-width: 768px) {
+    .center-container {
+        padding: 0 10px;
+    }
+    
+    .duplicate-container {
+        height: 92vh;
+        padding: 10px;
+    }
+    
+    .duplicate-container .check-progress {
+        min-height: 105px;
+    }
+    
+    .check-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .control-btn {
+        flex: 1;
+        min-width: 120px;
+    }
+} 
