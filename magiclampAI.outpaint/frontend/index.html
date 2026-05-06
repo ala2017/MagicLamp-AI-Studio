@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神灯AI · Outpaint — 智能扩图工作站</title>
+    <meta name="description" content="私有化部署的 AI 智能扩图工具，将任意图片扩展为 16:9 高清壁纸">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/index.css">
+</head>
+<body>
+    <!-- ====== 顶部导航 ====== -->
+    <header id="app-header">
+        <div class="header-left">
+            <i data-lucide="sparkles" class="logo-icon"></i>
+            <h1>神灯AI · <span class="accent">Outpaint</span></h1>
+        </div>
+        <div class="header-right">
+            <!-- 时钟 -->
+            <div id="gen-timer" class="badge badge-timer hidden">
+                <i data-lucide="timer" style="width: 14px; height: 14px;"></i>
+                <span id="gen-timer-text">00.00s</span>
+            </div>
+            
+            <div id="gpu-badge" class="badge badge-loading">
+                <span class="badge-dot"></span>
+                <span id="gpu-name">检测中...</span>
+                
+                <!-- 显存监控色块 -->
+                <div id="vram-monitor" class="vram-monitor hidden">
+                    <div class="vram-blocks" id="vram-blocks">
+                        <!-- JS 动态生成 8 个块 -->
+                    </div>
+                    <span id="vram-text">--GB / --GB</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ====== 主工作区 ====== -->
+    <main id="workspace">
+        <!-- 真正的极光流体层 (Mesh Gradient Aurora) -->
+        <div class="aurora-bg">
+            <div class="aurora-blob blob-1"></div>
+            <div class="aurora-blob blob-2"></div>
+            <div class="aurora-blob blob-3"></div>
+        </div>
+        
+        <!-- 画板容器 -->
+        <div id="canvas-wrapper">
+            <div id="canvas-container">
+                <canvas id="fabric-canvas"></canvas>
+                <!-- 空状态提示 -->
+                <div id="empty-state">
+                    <i data-lucide="image-plus" class="empty-icon"></i>
+                    <p class="empty-title">拖放图片到此处</p>
+                    <p class="empty-sub">或点击下方按钮上传</p>
+                    <p class="empty-hint">支持 JPG / PNG / WebP</p>
+                </div>
+                <!-- 生成中遮罩 -->
+                <div id="generating-overlay" class="hidden">
+                    <div class="gen-spinner"></div>
+                    <p class="gen-text">AI 正在创作中...</p>
+                    <div class="gen-progress-bar">
+                        <div id="gen-progress-fill" class="gen-progress-fill"></div>
+                    </div>
+                    <p id="gen-progress-text" class="gen-progress-text">0%</p>
+                    
+                    <!-- 极客终端输出 -->
+                    <div id="geek-terminal" class="geek-terminal">
+                        <div class="terminal-lines" id="terminal-lines">
+                            <!-- JS 动态插入 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- 画板信息 -->
+            <div class="canvas-info">
+                <span>1920 × 1080</span>
+                <span>16:9</span>
+            </div>
+        </div>
+    </main>
+
+    <!-- ====== 底部工具栏 ====== -->
+    <footer id="toolbar">
+        <div class="toolbar-group">
+            <input type="file" id="file-input" accept="image/*" hidden>
+            <button id="btn-upload" class="btn btn-secondary" title="上传图片">
+                <i data-lucide="upload" class="btn-icon"></i>
+                上传图片
+            </button>
+            <button id="btn-reset" class="btn btn-ghost" title="重置画板" disabled>
+                <i data-lucide="rotate-ccw" class="btn-icon"></i>
+                重置
+            </button>
+        </div>
+        <div class="toolbar-group toolbar-center">
+            <button id="btn-generate" class="btn btn-primary" title="开始生成" disabled>
+                <i data-lucide="wand-2" class="btn-icon"></i>
+                生成壁纸
+            </button>
+        </div>
+        <div class="toolbar-group">
+            <button id="btn-download" class="btn btn-secondary hidden" title="下载壁纸">
+                <i data-lucide="download" class="btn-icon"></i>
+                下载壁纸
+            </button>
+        </div>
+    </footer>
+
+    <!-- ====== 提示词输入 (默认隐藏，高级用户可展开) ====== -->
+    <div id="prompt-panel" class="hidden">
+        <label for="prompt-input">自定义提示词（可选）</label>
+        <input type="text" id="prompt-input" placeholder="留空即可，AI 会自动延伸背景...">
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.0/color-thief.umd.js"></script>
+    <script>
+      lucide.createIcons();
+    </script>
+    <script src="/static/app.js"></script>
+</body>
+</html>
