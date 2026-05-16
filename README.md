@@ -38,18 +38,19 @@ MagicLamp-AI-Studio/
 
 | Name | Description |
 |------|-------------|
-| `Genie-AI-Document-Analyzer` | AI文档智能分析器 |
-| `Genie-AI-Music-Generator` | AI音乐生成器 |
-| `Magic-lamp-AI-Read-aloud-Genie` | 神灯AI朗读精灵 |
-| `Master-Learning-Spirit` | 小爱老师 — AI 学习助手 |
-| `-AI-WeChat-PureLink-` | 微信纯净链接 — 自动跳转微信外链 |
+| `magiclamp-ai-outpaint` | 神灯AI·扩图 — 无限制 16:9 智能扩图工作站 |
+| `magiclamp-ai-doc-analyzer` | AI文档智能分析器 |
+| `magiclamp-ai-music-generator` | AI音乐生成器 |
+| `magiclamp-ai-read-aloud` | 神灯AI朗读精灵 |
+| `magiclamp-ai-learning-spirit` | 小爱老师 — AI 学习助手 |
+| `magiclamp-ai-wechat-purelink` | 微信纯净链接 — 自动跳转微信外链 |
 | `magiclamp-ai-img2pdf` | 图片转PDF — Windows 合并工具 |
-| `ala-ai-write` | 神灯 AI 写作 |
-| `ala-ai-music` | 神灯 AI 音乐 |
-| `-Gemini-CLI-` | Gemini CLI — 图形化命令行工具 |
-| `Multi-Destination-Route-Planner` | 多目的地路线规划器 |
-| `-AI-0.69` | AI 书签管理器浏览器扩展 |
-| `--AI---049` | AI 实验项目 049 |
+| `magiclamp-ai-writer` | 神灯 AI 写作 |
+| `magiclamp-ai-music` | 神灯 AI 音乐 |
+| `magiclamp-ai-gemini-cli` | Gemini CLI — 图形化命令行工具 |
+| `magiclamp-ai-route-planner` | 多目的地路线规划器 |
+| `magiclamp-ai-bookmark` | AI 书签管理器浏览器扩展 |
+| `magiclamp-ai-exp-049` | AI 实验项目 049 |
 
 ---
 

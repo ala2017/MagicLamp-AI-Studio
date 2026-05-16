@@ -7,15 +7,17 @@
 // ============================================================
 // 常量 & 全局状态
 // ============================================================
-const CANVAS_W = 1792;
-const CANVAS_H = 1008;
-const DISPLAY_SCALE = 0.55; // 画布在屏幕上的缩放比
+const CANVAS_W = 1280;
+const CANVAS_H = 720;
+const DISPLAY_SCALE = 0.75; // 画布在屏幕上的缩放比
 const DISPLAY_W = Math.round(CANVAS_W * DISPLAY_SCALE);
 const DISPLAY_H = Math.round(CANVAS_H * DISPLAY_SCALE);
 
 let fabricCanvas = null;
 let originalFile = null;
 let currentTaskId = null;
+let lastGeneratedTaskId = null; // 重绘：保存上一次成功生成的 task_id
+let lastLayoutData = null;      // 重绘：保存上一次排版参数
 let pollingInterval = null;
 let timerInterval = null;
 let timerStart = 0;
@@ -28,9 +30,35 @@ const $ = (id) => document.getElementById(id);
 function showToast(msg, type = "info") {
     const el = document.createElement("div");
     el.className = `toast toast-${type}`;
-    el.textContent = msg;
-    document.body.appendChild(el);
-    setTimeout(() => { el.style.opacity = "0"; setTimeout(() => el.remove(), 300); }, 3500);
+    
+    const textSpan = document.createElement("span");
+    textSpan.textContent = msg;
+    textSpan.style.wordBreak = "break-all";
+    el.appendChild(textSpan);
+    
+    // 如果是报错，添加关闭按钮，并且不自动消失
+    if (type === "error") {
+        const closeBtn = document.createElement("span");
+        closeBtn.innerHTML = "&times;";
+        closeBtn.style.cursor = "pointer";
+        closeBtn.style.marginLeft = "12px";
+        closeBtn.style.fontWeight = "bold";
+        closeBtn.style.fontSize = "18px";
+        closeBtn.onclick = () => {
+            el.style.opacity = "0";
+            setTimeout(() => el.remove(), 300);
+        };
+        el.appendChild(closeBtn);
+        document.body.appendChild(el);
+    } else {
+        document.body.appendChild(el);
+        setTimeout(() => {
+            if (el.parentNode) {
+                el.style.opacity = "0";
+                setTimeout(() => { if (el.parentNode) el.remove(); }, 300);
+            }
+        }, 3500);
+    }
 }
 
 // ============================================================
@@ -41,6 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         initCanvas();
         bindEvents();
         checkHealth();
+        startAutoReloadWatcher();
 
         // 请求通知权限
         if ("Notification" in window && Notification.permission === "default") {
@@ -67,6 +96,75 @@ function initCanvas() {
         backgroundColor: "transparent",
         selection: false,
     });
+
+    // ── 画布边界物理约束（撞墙效果）──
+    fabricCanvas.on("object:moving", enforceMoveBounds);
+    fabricCanvas.on("object:scaling", enforceScaleBounds);
+}
+
+/**
+ * 移动边界约束：采用成熟的防抖动（Anti-Jitter）算法
+ * 严格限制图片在画布内部，通过包围盒偏移量计算消除抖动
+ */
+function enforceMoveBounds(e) {
+    const obj = e.target;
+    
+    // 如果图片超出画布尺寸，直接不限制（否则会卡死），但下面有缩放限制保证其不会发生
+    if (obj.width * obj.scaleX > DISPLAY_W || obj.height * obj.scaleY > DISPLAY_H) {
+        return;
+    }
+
+    // 关键：强制刷新内部坐标缓存，这是解决抖动的核心
+    obj.setCoords();
+
+    // 获取真实的视觉包围盒
+    const bounds = obj.getBoundingRect();
+
+    // 基于偏移量(Offset)的钳位算法：
+    // obj.top 并不一定是图像的最上沿(比如原点在 center)，
+    // 我们需要计算 bounds.top 和 obj.top 之间的差值，来推导真正的限制范围。
+    const newTop = Math.max(
+        (obj.top - bounds.top), 
+        Math.min(obj.top, DISPLAY_H - bounds.height + (obj.top - bounds.top))
+    );
+    
+    const newLeft = Math.max(
+        (obj.left - bounds.left), 
+        Math.min(obj.left, DISPLAY_W - bounds.width + (obj.left - bounds.left))
+    );
+
+    obj.set({ top: newTop, left: newLeft });
+}
+
+/**
+ * 缩放边界约束：
+ * - 最小：缩放后高度 >= 画布高度的 50%
+ * - 最大：缩放后高度 <= 画布高度的 300%
+ * 缩放后也强制执行移动边界约束
+ */
+function enforceScaleBounds(e) {
+    const obj = e.target;
+    const scaledW = obj.width * obj.scaleX;
+    const scaledH = obj.height * obj.scaleY;
+    
+    const minH = DISPLAY_H * 0.2; // 最小允许缩放至画布的 20%
+    
+    // 最大缩放限制：宽高都不能超过画布，否则会卡死在撞墙判定里
+    const maxScaleW = DISPLAY_W / obj.width;
+    const maxScaleH = DISPLAY_H / obj.height;
+    const maxScale = Math.min(maxScaleW, maxScaleH);
+
+    if (scaledH < minH) {
+        const fixScale = minH / obj.height;
+        obj.set({ scaleX: fixScale, scaleY: fixScale });
+    }
+    
+    if (obj.scaleX > maxScale || obj.scaleY > maxScale) {
+        obj.set({ scaleX: maxScale, scaleY: maxScale });
+    }
+
+    // 缩放后也执行移动约束
+    enforceMoveBounds(e);
 }
 
 // ============================================================
@@ -96,14 +194,45 @@ function bindEvents() {
         }
     });
 
+    // 点击空状态区域触发上传
+    $("empty-state").addEventListener("click", () => $("file-input").click());
+
+    // 点击画布容器（无图时）也触发上传
+    $("canvas-container").addEventListener("click", (e) => {
+        if (!originalFile && e.target === $("canvas-container")) {
+            $("file-input").click();
+        }
+    });
+
     // 重置
     $("btn-reset").addEventListener("click", resetCanvas);
 
     // 生成
     $("btn-generate").addEventListener("click", startGenerate);
 
+    // 高清放大
+    const btnUpscaleX2 = $("btn-upscale-x2");
+    if (btnUpscaleX2) btnUpscaleX2.addEventListener("click", () => startUpscale(2));
+    const btnUpscaleX4 = $("btn-upscale-x4");
+    if (btnUpscaleX4) btnUpscaleX4.addEventListener("click", () => startUpscale(4));
+
     // 下载
     $("btn-download").addEventListener("click", downloadResult);
+
+    // 设置面板
+    $("btn-settings").addEventListener("click", () => {
+        $("settings-panel").classList.toggle("hidden");
+    });
+    $("btn-settings-close").addEventListener("click", () => {
+        $("settings-panel").classList.add("hidden");
+    });
+    // 滑块实时显示数值
+    $("setting-guidance").addEventListener("input", (e) => {
+        $("setting-guidance-val").textContent = e.target.value;
+    });
+    $("setting-steps").addEventListener("input", (e) => {
+        $("setting-steps-val").textContent = e.target.value;
+    });
 }
 
 // ============================================================
@@ -135,6 +264,7 @@ function executeAuraSync(imgElement) {
 // ============================================================
 function loadImage(file) {
     originalFile = file;
+    console.log("[Upload] 新图片已加载:", file.name, file.size, "bytes");
     const url = URL.createObjectURL(file);
 
     // AuraSync: 先用一个 Image 元素提取颜色
@@ -179,6 +309,10 @@ function loadImage(file) {
         $("btn-reset").disabled = false;
         $("btn-download").classList.add("hidden");
 
+        // 清除上一次的生成状态，允许重新排版
+        lastGeneratedTaskId = null;
+        lastLayoutData = null;
+
         showToast("图片已加载，可拖动调整位置", "success");
     });
 }
@@ -192,11 +326,14 @@ function resetCanvas() {
     fabricCanvas.renderAll();
     originalFile = null;
     currentTaskId = null;
+    lastGeneratedTaskId = null;
+    lastLayoutData = null;
 
     $("empty-state").classList.remove("hidden");
     $("btn-generate").disabled = true;
     $("btn-reset").disabled = true;
     $("btn-download").classList.add("hidden");
+    $("btn-upscale").classList.add("hidden");
 
     // 重置极光色为默认
     const root = document.documentElement;
@@ -216,26 +353,46 @@ async function startGenerate() {
         return;
     }
 
-    const imgObj = fabricCanvas.getObjects()[0];
-    if (!imgObj) {
-        showToast("画布中没有图片", "error");
-        return;
-    }
+    let layout;
 
-    // 计算图片在真实画布坐标中的位置
-    const scaleRatio = 1 / DISPLAY_SCALE;
-    const bounds = imgObj.getBoundingRect();
-    const layout = {
-        img_left: bounds.left * scaleRatio,
-        img_top: bounds.top * scaleRatio,
-        img_scale: imgObj.scaleX * scaleRatio,
-        prompt: ($("prompt-input") ? $("prompt-input").value : "") || "",
-    };
+    if (lastGeneratedTaskId && lastLayoutData) {
+        // 重绘模式：复用上次的排版坐标（归一化），只更新生成参数
+        layout = { ...lastLayoutData };
+        layout.prompt = ($("prompt-input") ? $("prompt-input").value : "") || "";
+        layout.guidance_scale = parseFloat($("setting-guidance").value);
+        layout.num_steps = parseInt($("setting-steps").value);
+        layout.seed = parseInt($("setting-seed").value);
+    } else {
+        const imgObj = fabricCanvas.getObjects()[0];
+        if (!imgObj) {
+            showToast("画布中没有图片", "error");
+            return;
+        }
+
+        // ── 归一化坐标系：传 0~1 范围的相对位置和尺寸 ──
+        const bounds = imgObj.getBoundingRect();
+        layout = {
+            norm_left:   bounds.left / DISPLAY_W,
+            norm_top:    bounds.top / DISPLAY_H,
+            norm_width:  bounds.width / DISPLAY_W,
+            norm_height: bounds.height / DISPLAY_H,
+            prompt: ($("prompt-input") ? $("prompt-input").value : "") || "",
+            guidance_scale: parseFloat($("setting-guidance").value),
+            num_steps: parseInt($("setting-steps").value),
+            seed: parseInt($("setting-seed").value),
+        };
+
+        // 保存排版参数供重绘使用（归一化坐标不会随缩放变化）
+        lastLayoutData = { ...layout };
+    }
 
     // 构造表单
     const formData = new FormData();
     formData.append("image", originalFile);
     formData.append("layout", JSON.stringify(layout));
+    
+    console.log("[Generate] 发送图片:", originalFile.name, originalFile.size, "bytes");
+    console.log("[Generate] 归一化布局参数:", layout);
 
     setGenerating(true);
 
@@ -243,7 +400,9 @@ async function startGenerate() {
         const res = await fetch("/api/generate", { method: "POST", body: formData });
         if (!res.ok) {
             const err = await res.json();
-            throw new Error(err.detail || "生成请求失败");
+            let msg = err.detail || "生成请求失败";
+            if (Array.isArray(msg)) msg = msg.map(m => m.msg || JSON.stringify(m)).join(", ");
+            throw new Error(msg);
         }
         const data = await res.json();
         currentTaskId = data.task_id;
@@ -253,6 +412,46 @@ async function startGenerate() {
     } catch (e) {
         setGenerating(false);
         showToast("生成失败: " + e.message, "error");
+    }
+}
+
+// ============================================================
+// 高清放大任务
+// ============================================================
+async function startUpscale(factor) {
+    if (!lastGeneratedTaskId) {
+        showToast("没有可放大的结果", "error");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("task_id", lastGeneratedTaskId);
+    formData.append("factor", factor);
+
+    console.log(`[Upscale] 请求放大任务: ${lastGeneratedTaskId}, 放大倍数: ${factor}`);
+
+    setGenerating(true);
+    $("btn-upscale-x2").classList.add("hidden");
+    $("btn-upscale-x4").classList.add("hidden");
+
+    try {
+        const res = await fetch("/api/upscale", { method: "POST", body: formData });
+        if (!res.ok) {
+            const err = await res.json();
+            let msg = err.detail || "放大请求失败";
+            if (Array.isArray(msg)) msg = msg.map(m => m.msg || JSON.stringify(m)).join(", ");
+            throw new Error(msg);
+        }
+        const data = await res.json();
+        currentTaskId = data.task_id;
+        startPolling(currentTaskId);
+        startTimer();
+        showToast("AI 正在超分辨率放大...", "info");
+    } catch (e) {
+        setGenerating(false);
+        $("btn-upscale-x2").classList.remove("hidden");
+        $("btn-upscale-x4").classList.remove("hidden");
+        showToast("放大失败: " + e.message, "error");
     }
 }
 
@@ -318,17 +517,29 @@ function onGenerateComplete() {
     setGenerating(false);
     $("btn-generate").disabled = false;
     $("btn-download").classList.remove("hidden");
+    
     stopTimer();
-    showToast("壁纸生成完成！", "success");
 
     // 系统通知
     if ("Notification" in window && Notification.permission === "granted") {
-        new Notification("神灯AI · Outpaint", { body: "壁纸已生成完毕，快来查看！" });
+        new Notification("神灯AI · Outpaint", { body: "任务处理完毕！" });
     }
 
-    // 在画布上预览结果
-    if (currentTaskId) {
-        fabric.Image.fromURL(`/api/download/${currentTaskId}`, (img) => {
+    if (currentTaskId.endsWith("_upscaled")) {
+        showToast("超清放大完成！", "success");
+        openUpscaleModal(currentTaskId);
+    } else {
+        const btnUpscaleX2 = $("btn-upscale-x2");
+        if (btnUpscaleX2) btnUpscaleX2.classList.remove("hidden");
+        const btnUpscaleX4 = $("btn-upscale-x4");
+        if (btnUpscaleX4) btnUpscaleX4.classList.remove("hidden");
+        
+        showToast("壁纸生成完成！", "success");
+        lastGeneratedTaskId = currentTaskId;
+        
+        // 在画布上预览结果
+        const timestamp = Date.now();
+        fabric.Image.fromURL(`/api/download/${currentTaskId}?t=${timestamp}`, (img) => {
             fabricCanvas.clear();
             img.set({
                 scaleX: DISPLAY_W / img.width,
@@ -342,6 +553,56 @@ function onGenerateComplete() {
             fabricCanvas.renderAll();
         });
     }
+}
+
+// ============================================================
+// 放大对比 Modal 逻辑
+// ============================================================
+function openUpscaleModal(upscaledTaskId) {
+    const baseTaskId = upscaledTaskId.replace("_upscaled", "");
+    const t = Date.now();
+    
+    $("compare-before").src = `/api/download/${baseTaskId}?t=${t}`;
+    $("compare-after").src = `/api/download/${upscaledTaskId}?t=${t}`;
+    
+    // 初始化滑块位置在中间
+    $("compare-slider").value = 50;
+    $("compare-after-container").style.width = "50%";
+    $("compare-handle").style.left = "50%";
+    
+    $("upscale-modal").classList.remove("hidden");
+    
+    // 采用超清大图（直接下载，不再替换回画板，因为画板是 720p 固定视图）
+    $("btn-upscale-apply").onclick = () => {
+        const a = document.createElement("a");
+        a.href = `/api/download/${upscaledTaskId}?t=${t}`;
+        a.download = `outpaint_${upscaledTaskId}.png`;
+        a.click();
+        
+        $("upscale-modal").classList.add("hidden");
+        showToast("超清大图已开始下载", "success");
+        
+        // 恢复放大按钮
+        $("btn-upscale-x2").classList.remove("hidden");
+        $("btn-upscale-x4").classList.remove("hidden");
+    };
+    
+    // 取消
+    $("btn-upscale-close").onclick = () => {
+        $("upscale-modal").classList.add("hidden");
+        $("btn-upscale-x2").classList.remove("hidden");
+        $("btn-upscale-x4").classList.remove("hidden");
+    };
+}
+
+// 滑块事件
+const compareSlider = $("compare-slider");
+if (compareSlider) {
+    compareSlider.addEventListener("input", (e) => {
+        const val = e.target.value;
+        $("compare-after-container").style.width = val + "%";
+        $("compare-handle").style.left = val + "%";
+    });
 }
 
 // ============================================================
@@ -391,13 +652,14 @@ function stopTimer() {
 // 下载壁纸
 // ============================================================
 function downloadResult() {
-    if (!currentTaskId) {
+    if (!lastGeneratedTaskId) {
         showToast("没有可下载的结果", "error");
         return;
     }
     const a = document.createElement("a");
-    a.href = `/api/download/${currentTaskId}`;
-    a.download = `outpaint_${currentTaskId}.png`;
+    // 添加时间戳防止浏览器缓存
+    a.href = `/api/download/${lastGeneratedTaskId}?t=${Date.now()}`;
+    a.download = `outpaint_${lastGeneratedTaskId}.png`;
     a.click();
 }
 
@@ -472,4 +734,29 @@ function updateVRAM(used, total) {
 
     const vramText = $("vram-text");
     if (vramText) vramText.textContent = `${used.toFixed(1)}GB / ${total.toFixed(1)}GB`;
+}
+
+// ============================================================
+// 服务重启自动刷新（无需手动 F5）
+// ============================================================
+function startAutoReloadWatcher() {
+    let serverWasDown = false;
+
+    setInterval(async () => {
+        try {
+            const res = await fetch("/api/health", { signal: AbortSignal.timeout(2000) });
+            if (res.ok && serverWasDown) {
+                // 服务恢复了，自动刷新页面
+                console.log("[AutoReload] 服务已恢复，自动刷新页面...");
+                location.reload();
+            }
+            serverWasDown = false;
+        } catch (_) {
+            // 连不上服务器，标记为已断开
+            if (!serverWasDown) {
+                console.log("[AutoReload] 服务已断开，等待恢复后自动刷新...");
+            }
+            serverWasDown = true;
+        }
+    }, 1000);
 }

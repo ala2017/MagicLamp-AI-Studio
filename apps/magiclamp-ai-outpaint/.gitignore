@@ -1,0 +1,10 @@
+venv/
+models/
+output/
+__pycache__/
+*.pyc
+*.pyo
+.env
+flux_pipeline_call.txt
+_test_*.py
+.browser_opened

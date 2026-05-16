@@ -1,0 +1,176 @@
+# 需求文档 (PRD)
+
+产品名称：神灯AI·outpaint；MagicLampAi·outpaint
+
+开发者：神灯AI lab·天火义王
+
+远端仓库：https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/apps/magiclampAI.outpaint
+
+无限制的 16:9 智能扩图工作站
+
+## 1. 项目背景与核心痛点
+
+目前市面上的主流商业大模型（如 Midjourney, DALL-E 等）具有极强的"安全审查"机制。当用户尝试对一些包含泳装、二次元、或衣物较少的人像照片进行"扩图（Outpainting）"以制作壁纸时，极易触发一刀切的封控，导致拒绝服务。
+
+**本项目目标**：开发一款完全属于自己的、可私有化部署的 Web 端扩图工具。它需要利用开源的生成式 AI 技术，彻底绕过商业 API 的审查限制，允许用户将任意比例的图片，通过自定义排版和 AI 智能背景补全，高质量地扩展为 16:9 的桌面壁纸。
+
+## 2. 核心用户体验路径 (User Flow)
+
+1. **上传**：用户在 Web 界面上传一张任意比例的源图片。
+2. **排版**：图片出现在一个固定为 16:9 比例的"可视化画板"中。用户可以用鼠标自由拖拽图片的位置，拖动锚点等比例放大或缩小原图，以决定主体在最终壁纸中的构图（可超出画板边界，画板外部分视为裁剪掉）。
+3. **生成**：排版完成后，用户点击生成。系统自动识别画板中"没有被原图覆盖的空白区域"，并呼叫后端的 AI 模型。
+4. **交付**：AI 自动理解原图的边缘、光影、画风和背景逻辑，将空白区域无缝填补，最终输出一张完整的、高清晰度的 16:9 壁纸供用户下载。
+
+## 3. 详细功能需求
+
+### 3.1 交互式前端画板 (Interactive Canvas)
+
+- **画板约束**：工作区必须是一个严格保持 16:9 比例的画布（逻辑坐标 1280×720，显示缩放 0.75 → 960×540）。
+- **自由操作**：原图导入后，用户可以进行拖拽（平移）、等比缩放。
+- **画布边界物理约束**：图片在拖动/缩放时必须受到画布边界的物理限制（撞墙效果）。最小缩放：图片短边不得小于画布对应边的 50%；移动约束：图片右边缘不得超过画布左边界 50%，反之亦然（确保至少 50% 的图片面积在画布可见区域内）。
+- **所见即所得**：画板的边界即为最终成图的边界。前端通过归一化坐标（0~1 范围）将排版状态传递给后端，后端在 1280×720 逻辑画布上精确还原原图位置，确保扩图前后原图的位置和大小绝对不变。
+
+### 3.2 智能 AI 扩图核心 (AI Outpainting Engine)
+
+- **无审查限制**：必须采用可本地部署/云端私有化部署的开源模型方案，确保不会因为图片内容（如合规的清凉着装）被拒绝生成。
+- **无缝融合**：AI 必须具备强大的边缘理解能力。生成的新背景需要与原图的色彩、光影、透视、画风高度一致，边缘过渡自然，无明显的拼接缝隙。
+- **低提示词依赖 (Low Prompt Dependency)**：用户主要诉求是"延伸现有背景"，系统应尽量减少用户手动输入复杂提示词的负担。系统内置智能默认 Prompt，自动实现背景延伸并禁止生成额外人物。
+- **禁止生成额外人物**：扩图区域只允许生成背景、风景、环境元素，严禁 AI 在扩展区域凭空生成原图中不存在的人物。通过 Prompt 工程实现（FLUX 无 negative prompt 机制，限制语义写入正向 Prompt）。
+
+### 3.3 AI 高清修图 (AI Upscaling) *[Phase 3]*
+
+- 使用 Real-ESRGAN 对生成的壁纸进行 2×/4× AI 超分辨率放大。
+- 1920×1080 → 4× → 7680×4320（超 4K 品质）。
+- 支持通用照片和二次元两种超分模型。
+
+### 3.4 批量处理能力 (Batch Processing) *[Phase 3]*
+
+- 支持用户上传一个包含多张图片的文件夹。
+- 提供"自动排版策略"（如：统一居中铺满高度），让 AI 在后台自动排队执行扩图，并输出到指定目录。
+
+## 4. 技术架构（已确认）
+
+### 4.1 技术选型
+
+| 组件 | 技术 | 说明 |
+|:---|:---|:---|
+| 前端 | Vanilla HTML/CSS/JS + Fabric.js v5 | 16:9 交互画板，暗色主题 |
+| 后端 | Python FastAPI | 单进程服务，同时托管前端和 API |
+| AI 模型 | FLUX.1 Fill-dev (Q4_K_S GGUF) + CLIP + T5 (INT8) | Transformer 6.8GB + T5 4.5GB，峰值 VRAM ~12-14GB，完美适配 16GB |
+| AI 推理 | diffusers (FluxFillPipeline) + accelerate CPU Offload | 完整 Pipeline 一次性组装，accelerate 自动管理 CPU↔GPU 调度，无需 ComfyUI |
+| Mask 生成 | Pillow + NumPy + SciPy | 坐标映射 + 纯黑底图 + 高斯羽化（sigma=8，防止人物信息泄漏） |
+| VAE 优化 | enable_slicing() + enable_tiling() | 1792×1008 高分辨率 VAE decode 峰值从 ~6GB 降至 ~1.5GB |
+| 超分辨率 | Real-ESRGAN (Spandrel) | 4K 无损放大 (Phase 3 已实现) |
+
+### 4.2 硬件基准
+
+| 配置 | 规格 |
+|:---|:---|
+| GPU | NVIDIA RTX 4060 Ti 16GB |
+| 默认输出 | 1280×720（防复制人最佳分辨率，<1MP） |
+| 超分输出 | 5120×2880（Real-ESRGAN 4K，已上线） |
+| 峰值 VRAM | ~12-14GB（CPU Offload 模式） |
+| 推理速度 | 28 步 ~3-5 分钟（CPU Offload 调度开销） |
+
+### 4.3 架构图
+
+```
+浏览器 (localhost:8000)
+    ↕ HTTP REST
+Python FastAPI (:8000)
+    ├── 前端静态文件托管 (/static/)
+    ├── Mask 生成 (Pillow + NumPy + SciPy, feather_sigma=30)
+    └── FLUX.1 Fill 推理 (diffusers FluxFillPipeline)
+         ├── GGUF Q4_K_S Transformer (6.8GB, 本地文件)
+         ├── T5 INT8 文本编码器 (4.5GB, HF cache)
+         ├── CLIP + VAE (从 HF cache 自动加载)
+         ├── enable_model_cpu_offload() ← accelerate 自动调度
+         ├── vae.enable_slicing() + vae.enable_tiling() ← VAE 显存优化
+         └── RTX 4060 Ti 16GB
+```
+
+### 4.4 推理引擎核心设计（已验证稳定方案）
+
+**加载策略：完整 Pipeline 一次性组装 + CPU Offload**
+
+旧方案（"解耦架构"）存在根本性缺陷：`FluxFillPipeline.__call__` 内部始终调用 `encode_prompt()`，该调用需要 `text_ids` 驱动 Transformer，在 `text_encoder=None` 时必然崩溃。
+
+当前稳定方案：
+1. 从本地 GGUF 文件加载 Q4_K_S Transformer
+2. 从 HF cache 加载 T5 INT8 编码器
+3. 通过 `FluxFillPipeline.from_pretrained()` 一次性组装完整 pipeline（含 CLIP、VAE、tokenizer）
+4. 调用 `pipe.enable_model_cpu_offload()` — accelerate 按需将各组件在 CPU↔GPU 之间调度，同一时刻 GPU 上只有当前执行的组件
+5. 调用 `pipe.vae.enable_slicing()` + `pipe.vae.enable_tiling()` — 分块 VAE decode
+
+**VRAM 峰值时序：**
+```
+T5 编码阶段：  ~4.5GB（T5 上 GPU，其余在 CPU）
+Transformer 去噪：~6.8GB（Transformer 上 GPU，其余在 CPU）
+VAE decode：   ~1.5GB（tiling 分块，其余在 CPU）
+峰值合计：     ~12-14GB ✅（16GB 内稳定）
+```
+
+**Prompt 策略（禁止生成额外人物）：**
+
+FLUX 无 negative prompt 机制，通过正向 Prompt 工程实现内容限制：
+- 描述性语义优先（T5 对 prompt 前半段权重更高）
+- 先描述"想要什么"，再追加"禁止什么"
+- `guidance_scale=30.0`（FLUX Fill 必须使用高 Guidance 才能保持和原图边缘完全一致的上下文，低于 10 会导致塑料感或接缝）
+
+默认 Prompt（用户不填时）：
+```
+seamless background extension, wide open natural scenery,
+empty uninhabited landscape, photorealistic environment,
+identical lighting and atmosphere, no living beings present,
+no people, no person, no human figure, no face, no body parts
+```
+
+用户自定义 Prompt 时，系统自动追加后缀：
+```
+{用户 prompt}, empty uninhabited scene, no living beings present,
+no people, no person, no human figure
+```
+
+### 4.5 FLUX.2 升级路径评估（2026年5月）
+
+| 模型 | 参数量 | 最低 VRAM | Fill/Outpaint | 16GB 可用 | 备注 |
+|:---|:---|:---|:---|:---|:---|
+| FLUX.1 Fill-dev Q4_K_S（当前） | ~12B | ~12GB | ✅ 专用模型 | ✅ | 当前最优方案 |
+| FLUX.2 [dev] | 32B | ~40GB | 无 Fill 版 | ❌ | Mistral-3 24B VLM 编码器，消费卡无法运行 |
+| FLUX.2 [klein] 4B | 4B | ~13GB | ❌ 暂无 Fill 版 | ⚠️ 理论可行 | Apache 2.0，待官方发布 Fill 版本后可迁移 |
+
+**结论**：FLUX.1 Fill Q4_K_S 仍是 16GB 消费卡 outpainting 的最优解。FLUX.2 klein Fill 版本发布后，因架构兼容（同为 diffusers pipeline + cpu_offload），迁移成本极低。
+
+## 5. 项目排期与阶段划分
+
+### 阶段 1：核心骨架搭建与 MVP 验证 (Phase 1) - **[已完成]**
+- [x] 前端：Fabric.js 基础交互，图片导入、拖拽、比例锁定功能。
+- [x] 后端：FastAPI 基础框架，图片接收与 Mask 坐标计算逻辑。
+- [x] AI 推理：部署 **FLUX.1-Fill-dev (Q4_K_S) + T5 (INT8)**，成功解决 16GB 显存溢出、色差黑边问题。
+- [x] 测试：前后端联调，成功跑通第一张完美扩展的 16:9 图像，单步推理速度 ~6s。
+
+### 阶段 2：UI/UX 深度打磨 + 推理引擎稳定化 (Phase 2) - **[进行中]**
+- [x] 体验升级：移除所有 Emoji，接入顶级 Lucide SVG 矢量图标库，UI 提升至 SaaS 企业级质感。
+- [x] 进度追踪：抛弃虚假进度条，接入 Diffusers `callback_on_step_end` 获取真实推理步数映射 (40% - 95% 平滑过渡)。
+- [x] 离屏提醒：增加浏览器 Notification API，长耗时生成完成后桌面弹窗提醒。
+- [x] 推理引擎重构：修复"解耦架构"根本性缺陷，改用完整 Pipeline + CPU Offload 方案，彻底解决 OOM 和 `text_ids` 崩溃问题。
+- [x] VAE 显存优化：启用 `enable_slicing()` + `enable_tiling()`，1792×1008 分辨率 VAE decode 峰值从 ~6GB 降至 ~1.5GB。
+- [x] 禁止生成额外人物：通过 Prompt 工程 + `guidance_scale=35` 实现，扩图区域只生成背景风景。
+- [x] Mask 羽化优化：`feather_sigma` 从 10 提升至 30，边缘融合更自然。
+- [x] 画布边界物理约束：图片拖动/缩放时受画布边界限制（撞墙效果），防止图片完全拖出画布或缩放到极端尺寸。
+- [x] 归一化坐标系重构：前端改用 0~1 归一化坐标传递排版信息，后端根据画布尺寸精确还原，彻底消除多层缩放导致的位置偏移。
+- [x] 自适应 Mask 算法：根据留白边数（1~4边）自动调整 feather_sigma 和底色填充策略，提升不同构图场景的扩图质量。
+- [x] 启动流程精简：后端 torch/scipy 改为延迟导入，uvicorn 启动速度提升 ~3 秒。
+- [x] 启动自动清理：每次启动时自动删除 output/ 中的 DEBUG 中间文件（`_01_uploaded`、`_02_canvas`、`_03_mask`、`_04_flux_output`），仅保留最终结果和重绘用 mask。生产环境不再产生 DEBUG 文件。
+- [x] 模型离线加载防护：HF `from_pretrained` 在模型已缓存时强制 `local_files_only=True`，避免网络异常时静默挂起；未缓存时增加超时检测和明确的错误提示。
+- [x] 角落混合向量化：Mask 生成器角落区域的距离加权混合从 Python for 循环改为 NumPy 向量化，性能提升 ~100x。
+- [ ] 两阶段生成（粗生成 + 边缘精修）
+- [ ] 生成历史 / 前后对比视图
+- [ ] 可选 Prompt 输入（高级用户）
+
+### Phase 3: 进阶功能 🚀 已实现核心
+- [x] AI 高清修图（Real-ESRGAN 4K 超分 + Before/After 对比预览）
+- [ ] 批量处理模式 + 自动排版策略
+- [ ] Docker 一键部署包
+- [ ] 多分辨率输出选项
+- [ ] FLUX.2 klein Fill 版本迁移（待官方发布）
