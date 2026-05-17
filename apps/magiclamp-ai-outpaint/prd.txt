@@ -4,7 +4,7 @@
 
 开发者：神灯AI lab·天火义王
 
-远端仓库：https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/apps/magiclampAI.outpaint
+远端仓库：https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/apps/magiclamp-ai-outpaint
 
 无限制的 16:9 智能扩图工作站
 
@@ -164,6 +164,7 @@ no people, no person, no human figure
 - [x] 启动自动清理：每次启动时自动删除 output/ 中的 DEBUG 中间文件（`_01_uploaded`、`_02_canvas`、`_03_mask`、`_04_flux_output`），仅保留最终结果和重绘用 mask。生产环境不再产生 DEBUG 文件。
 - [x] 模型离线加载防护：HF `from_pretrained` 在模型已缓存时强制 `local_files_only=True`，避免网络异常时静默挂起；未缓存时增加超时检测和明确的错误提示。
 - [x] 角落混合向量化：Mask 生成器角落区域的距离加权混合从 Python for 循环改为 NumPy 向量化，性能提升 ~100x。
+- [x] 目录结构重构与冗余清理：规范 monorepo 命名 convention，将旧测试脚本和重复文档合并/归档至 `_to_be_deleted/`，新增综合商业演示全案套件。
 - [ ] 两阶段生成（粗生成 + 边缘精修）
 - [ ] 生成历史 / 前后对比视图
 - [ ] 可选 Prompt 输入（高级用户）

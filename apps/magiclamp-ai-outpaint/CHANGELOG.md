@@ -1,5 +1,22 @@
 # 更新日志 (CHANGELOG)
 
+## [0.70] - 2026-05-17 — 项目目录冗余清理与文档合并
+
+### ✨ 核心改进
+- **[MAINTENANCE] 冗余脚本与未完稿文档归档**:
+  - 现象：项目根目录下存在大量的测试脚本（`_test_engine.py`、`_test_full_pipeline.py`、`_test_source.py`、`flux_pipeline_call.txt`）以及来自其他项目的无关PRD文档（`COAD_Whitepaper_and_PRD.md`），使得工作区略显臃肿。
+  - 原因：前期的研发测试产物以及方法论白皮书在功能稳定后不再属于当前项目的核心源码库，直接在根目录摆放会造成新开发者/AI Agent的干扰与逻辑碎片化。
+  - 修复：创建 `_to_be_deleted/` 存档待删除目录，将冗余的代码文件、测试日志与外部无关PRD进行移动物理隔离，保持根目录干净可维护。
+  - 文件：移动上述所有测试文件至 `_to_be_deleted/`。
+
+- **[MAINTENANCE] 商业宣传与使用文档深度整合**:
+  - 现象：针对服装批发商户沙龙设计的Marps幻灯片源码（`MagicLamp_Full_Slide_Deck.md`）和详细的逐页演说落地手册（`MagicLamp_PPT_Handguide.md`）分立为两个Markdown文件，存在大量的文本重复和上下文割裂。
+  - 原因：文档结构没有集中化，导致用户在使用和修改沙龙讲义时需要在两个MD文件之间频繁跳转同步。
+  - 修复：将其彻底整编合并为单一的商业全案大纲文件 `MagicLamp_Presentation_Suite.md`，并在其中清晰地划分出幻灯片源码版块和逐页演说词版块，兼具演示渲染与落地指导能力，并将原本分立的旧文件移至 `_to_be_deleted/` 备用归档。
+  - 文件：新建 `MagicLamp_Presentation_Suite.md`
+
+---
+
 ## [0.69] - 2026-05-16 — 高清放大模块体验重构
 
 ### ✨ 核心改进
