@@ -8,7 +8,7 @@ import gc
 
 logger = logging.getLogger(__name__)
 
-MODEL_DIR = Path(__file__).parent.parent.parent / "models"
+MODEL_DIR = Path(__file__).parent.parent / "models"
 # 使用 HF 镜像加速下载 (修正 404 路径)
 MODEL_URL = "https://hf-mirror.com/lllyasviel/Annotators/resolve/main/RealESRGAN_x4plus.pth"
 MODEL_PATH = MODEL_DIR / "RealESRGAN_x4plus.pth"

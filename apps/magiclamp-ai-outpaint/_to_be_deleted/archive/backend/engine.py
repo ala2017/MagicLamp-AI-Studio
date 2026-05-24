@@ -19,7 +19,7 @@ from PIL import Image
 logger = logging.getLogger(__name__)
 
 # 模型缓存目录
-MODEL_DIR = Path(__file__).parent.parent.parent / "models"
+MODEL_DIR = Path(__file__).parent.parent / "models"
 MODEL_DIR.mkdir(exist_ok=True)
 
 # ---- 大陆镜像加速 & Token ----
@@ -37,8 +37,8 @@ GGUF_FILENAME = "flux1-fill-dev-Q4_K_S.gguf"
 CANVAS_WIDTH = 1280
 CANVAS_HEIGHT = 720
 
-# 极简默认 prompt：强力禁止生成人物（通过正向环境排挤）
-DEFAULT_PROMPT = "seamless background extension, pure natural background scenery, uninhabited space, empty quiet environment, static background elements only"
+# 极简默认 prompt：强力禁止生成人物
+DEFAULT_PROMPT = "seamless background extension, pure background only, absolutely no people, no person, no human, no face, no body, background elements only"
 
 
 def _is_model_cached(model_id: str, cache_dir: Path) -> bool:
@@ -212,8 +212,8 @@ class OutpaintEngine:
             (infer_w, infer_h), Image.LANCZOS
         )
 
-        # Prompt 策略：强力禁止生成人物（通过正向环境排挤）
-        base_prompt = "seamless background extension, pure natural background scenery, uninhabited space, empty quiet environment, static background elements only"
+        # Prompt 策略：强力禁止生成人物
+        base_prompt = "seamless background extension, pure background only, absolutely no people, no person, no human, no face, no body"
         
         if not prompt.strip():
             final_prompt = base_prompt
