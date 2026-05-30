@@ -1,0 +1,7 @@
+# Python runtime caches (no cross-platform meaning, noisy diffs)
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Generated handoff artifact
+DEHYDRATED_CONTEXT.md
