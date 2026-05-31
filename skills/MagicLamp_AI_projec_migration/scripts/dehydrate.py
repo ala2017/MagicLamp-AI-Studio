@@ -118,6 +118,11 @@ TEXT_READ_LIMIT = 200_000  # bytes per doc; logs/large files are never fully rea
 STALE_DAYS = 14            # snapshot older than this -> recommend re-snapshot
 DIRTY_DELTA_WARN = 5       # current dirty files exceed recorded by this -> drift warning
 
+# Coverage gate: if doc-derived breakpoints miss too much real source, or
+# reference too many dead paths, auto-inject an ast-built CODE_MAP (free tier).
+OMISSION_WARN = 15.0       # % real source files never named in any doc
+DRIFT_WARN = 20.0          # % doc-referenced code paths that no longer exist
+
 # --------------------------------------------------------------------------- #
 # Helpers
 # --------------------------------------------------------------------------- #
@@ -456,7 +461,7 @@ STATIC_SCHEMA_VERSION = "1.0"
 
 
 def build_dehydrated(root, stack, ignore_actions, ranking, confused, confused_pair,
-                     git_summary, breakpoints_by_doc):
+                     git_summary, breakpoints_by_doc, code_map=None, audit=None):
     L = []
     # ---- STATIC HEADER (zero-variance, fully cacheable) ---------------------
     L.append("# DEHYDRATED_CONTEXT")
@@ -498,6 +503,24 @@ def build_dehydrated(root, stack, ignore_actions, ranking, confused, confused_pa
         L.append(f"### {d['rel']}")
         for bp in bps:
             L.append(f"- {bp}")
+        L.append("")
+
+    # ---- AUTO-AUGMENT (conditional): ast-built real file tree + signatures ----
+    # Emitted only when doc coverage fails the gate, so doc-only snapshots stay
+    # byte-stable. This is the missing code anchor the model needs to avoid an
+    # exploration storm when breakpoints describe "what" but not "where".
+    if code_map:
+        L.append("## 3b. CODE_MAP (auto-augment: doc coverage below gate)")
+        if audit:
+            L.append(
+                f"> Trigger: omission {audit.get('omission_pct')}% "
+                f"(gate {OMISSION_WARN}%) / drift {audit.get('drift_pct')}% "
+                f"(gate {DRIFT_WARN}%). Real file tree + signatures injected "
+                f"(ast, zero source copied)."
+            )
+        L.append("> Anchors are file paths + class/def names only; no source bodies.")
+        L.append("")
+        L.append(code_map)
         L.append("")
 
     L.append("## 4. GIT_HIGHLIGHT_ZONE")
@@ -621,6 +644,8 @@ def main():
                     help="Print JSON signals and exit (no file written)")
     ap.add_argument("--detect", action="store_true",
                     help="Route Snapshot vs Resume: print JSON decision and exit")
+    ap.add_argument("--no-code-map", action="store_true",
+                    help="Disable the ast-based CODE_MAP coverage augment")
     args = ap.parse_args()
 
     root = os.path.abspath(args.root)
@@ -643,6 +668,21 @@ def main():
     git_summary = git_status_summary(root, git_present)
     breakpoints_by_doc = {d["rel"]: extract_breakpoints(d) for d in ranking}
 
+    # Coverage gate (deterministic, repo-grounded). When doc-derived breakpoints
+    # miss too much real source, inject an ast-built CODE_MAP so the model gets
+    # the "where" anchors, not just the "what".
+    audit_info = None
+    code_map = None
+    if not args.no_code_map:
+        try:
+            from build_project_map import coverage_audit, build_map, render_map_md
+            audit_info = coverage_audit(root)
+            if (audit_info["omission_pct"] > OMISSION_WARN
+                    or audit_info["drift_pct"] > DRIFT_WARN):
+                code_map = render_map_md(build_map(root))
+        except Exception as exc:
+            print(f"[warn] code-map augment skipped: {exc}", file=sys.stderr)
+
     if args.signals_only:
         print(json.dumps({
             "root": root,
@@ -655,12 +695,14 @@ def main():
             "confused": confused,
             "confused_pair": confused_pair,
             "git_summary": git_summary,
+            "coverage_audit": audit_info,
+            "code_map_injected": bool(code_map),
         }, ensure_ascii=False, indent=2))
         return
 
     content = build_dehydrated(
         root, stack, ignore_actions, ranking, confused, confused_pair,
-        git_summary, breakpoints_by_doc,
+        git_summary, breakpoints_by_doc, code_map=code_map, audit=audit_info,
     )
     out_path = os.path.join(root, args.out)
     with open(out_path, "w", encoding="utf-8", newline="\n") as fh:
@@ -668,6 +710,9 @@ def main():
 
     print(f"[OK] stack={stack}")
     print(f"[OK] docs_discovered={len(raw_docs)} confused_zone={confused}")
+    if audit_info:
+        print(f"[OK] coverage: omission={audit_info['omission_pct']}% "
+              f"drift={audit_info['drift_pct']}% code_map_injected={bool(code_map)}")
     print(f"[OK] ignore_files: " + ", ".join(f"{a['file']}={a['action']}" for a in ignore_actions))
     print(f"[OK] wrote {out_path}")
 

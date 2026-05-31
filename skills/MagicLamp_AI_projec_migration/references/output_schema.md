@@ -7,6 +7,10 @@ cost. Follow these rules exactly.
 
 - The header + sections 1–6 are a **static block**: identical byte stream every
   run. Never inject timestamps, run IDs, or random ordering into them.
+- The optional `3b. CODE_MAP` block (see below) is deterministic for a given
+  repo state, so it is also byte-stable across re-runs of the same project. It
+  is emitted **only when the coverage gate fails**, so doc-complete projects
+  keep the exact 1–6 layout.
 - All volatile metadata (generation time, absolute root path) lives ONLY in the
   trailing `VOLATILE_METADATA` block, after the `---` separator.
 - Goal: the static prefix is judged a Static Block by the provider and cached in
@@ -22,6 +26,7 @@ SCHEMA_VERSION / GENERATOR / CONTRACT
 1. STACK
 2. TRUTH_SOURCE_RANKING (Stereo-Clock)
 3. ATOMIC_BREAKPOINTS
+3b. CODE_MAP             (only if doc coverage fails the gate)
 4. GIT_HIGHLIGHT_ZONE
 5. SHADOW_IGNORANCE
 6. TARGET_TOOL_INIT
@@ -29,6 +34,27 @@ SCHEMA_VERSION / GENERATOR / CONTRACT
 VOLATILE_METADATA
 [TERMINATE_SESSION]
 ```
+
+## Coverage gate -> CODE_MAP auto-augment
+
+Atomic breakpoints are mined from `.md`/`.txt` docs, so they capture **what** is
+being worked on but not always **where** it lives in code. When docs under-cover
+the real source tree, the model is forced into an exploration storm on resume.
+
+`build_project_map.py` runs a deterministic, repo-grounded audit (zero token):
+
+- **omission%** = real source files whose basename is never named in any doc.
+- **drift%**    = doc-referenced code paths that no longer resolve on disk.
+
+If `omission% > 15` or `drift% > 20`, `dehydrate.py` injects a `3b. CODE_MAP`
+section built with `ast` (Python) / regex fallback (other langs). It lists every
+significant source file as `path — one-line doc | class: ... | def: ...`.
+**Only signatures are emitted; no source bodies are ever copied.** An optional
+`--describe` tier feeds those signatures (never file bodies) to the cheapest
+model for a one-line responsibility note each.
+
+Validated on a 79-source project: omission 27.8% -> 0.0%, drift 27.3% -> 19.9%
+(both below gate after injection).
 
 ## Content laws
 

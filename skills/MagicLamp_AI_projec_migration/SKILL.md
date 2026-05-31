@@ -86,6 +86,12 @@ TASK/TODO/任务/进度),并对冲突文档执行 **Stereo-Clock 立体时钟仲
 
 状态词统一对齐为 `[DONE]` / `[ACTIVE_BREAKPOINT]`;仅锚定含 `MUST/REQUIRED/严禁/必须` 的 `[IRON_LAW]`。
 
+> **覆盖门控(模块六)**:断点来自文档,只答"做什么"不答"在哪"。`dehydrate.py` 会先用
+> `scripts/build_project_map.py` 做零 Token 覆盖审计(omission% = 真实源码文件从未被任何文档提及的比例;
+> drift% = 文档引用但已不存在的路径比例)。当 `omission% > 15` 或 `drift% > 20` 时,自动用 `ast`
+> 抽取"真实文件树 + 每文件类/函数签名"注入交接书 `## 3b. CODE_MAP`(**只写签名,绝不复制源码体**),
+> 补上代码锚点、消除断点漂移。可选 `--describe` 仅把签名喂给最廉价模型生成一句话责任说明;`--no-code-map` 关闭。
+
 ### A4 — 模块三:脱水产出 + 凭证洗涤 + 缓存强固化
 生成最终交接书(默认置于项目根目录):
 
