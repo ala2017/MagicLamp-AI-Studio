@@ -53,6 +53,8 @@ def build_shadow(root, dest, max_log_kb):
         dest = os.path.join(tempfile.gettempdir(),
                             f"magiclamp_shadow_{os.path.basename(root.rstrip(os.sep))}_{stamp}")
     dest = os.path.abspath(dest)
+    if os.path.exists(dest) and os.path.abspath(dest) != root:
+        shutil.rmtree(dest)
     os.makedirs(dest, exist_ok=True)
 
     stats = {"linked": 0, "copied": 0, "skipped_dir": 0, "skipped_file": 0, "skipped_biglog": 0}

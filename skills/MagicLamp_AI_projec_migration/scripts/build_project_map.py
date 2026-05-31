@@ -43,6 +43,32 @@ VENDOR_RE = re.compile(r"(models--|[\\/]snapshots[\\/]|transformers_modules|"
 
 # Doc extensions for the coverage audit.
 DOC_EXT = ("*.md", "*.markdown", "*.txt", "*.rst")
+GENERATED_DOC_NAMES = {
+    "DEHYDRATED_CONTEXT.md",
+}
+
+# Lightweight secret redaction for extracted single-line signatures.
+# We never want a secret value to leak into CODE_MAP via the 'doc' field.
+_SECRET_KV_LITE = re.compile(
+    r"(?i)((?:api[_-]?key|secret|token|password|passwd|pwd|access[_-]?key)\s*[:=]\s*['\"]?)([^\s'\";,]{8,})"
+)
+_SECRET_STANDALONE_LITE = [
+    re.compile(r"sk-[A-Za-z0-9]{16,}"),
+    re.compile(r"ghp_[A-Za-z0-9]{20,}"),
+    re.compile(r"AKIA[0-9A-Z]{16}"),
+    re.compile(r"AIza[0-9A-Za-z\-_]{20,}"),
+    re.compile(r"eyJ[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{10,}\.[A-Za-z0-9_\-]{6,}"),
+]
+
+def _launder_field(text):
+    if not text:
+        return text
+    out = text
+    for rx in _SECRET_STANDALONE_LITE:
+        out = rx.sub("[REDACTED]", out)
+    out = _SECRET_KV_LITE.sub(lambda m: f"{m.group(1)}[REDACTED]", out)
+    return out
+
 
 DOCSTR_CAP = 80
 MAX_DEFS = 6
@@ -51,6 +77,8 @@ MAX_CLASSES = 4
 
 def _skip(path):
     parts = path.replace("\\", "/").split("/")
+    if os.path.basename(path) in GENERATED_DOC_NAMES:
+        return True
     if any(p in SKIP_DIRS for p in parts):
         return True
     if VENDOR_RE.search(path):
@@ -95,7 +123,7 @@ def py_signature(path):
             defs.append(node.name)
         elif isinstance(node, ast.ClassDef):
             classes.append(node.name)
-    return {"doc": doc, "defs": defs[:MAX_DEFS], "classes": classes[:MAX_CLASSES]}
+    return {"doc": _launder_field(doc), "defs": defs[:MAX_DEFS], "classes": classes[:MAX_CLASSES]}
 
 
 def generic_signature(path):
@@ -113,7 +141,7 @@ def generic_signature(path):
     names = re.findall(r"(?:export\s+)?(?:async\s+)?function\s+(\w+)", src)
     names += re.findall(r"(?:export\s+)?const\s+(\w+)\s*=\s*(?:async\s*)?\(", src)
     classes = re.findall(r"(?:export\s+)?class\s+(\w+)", src)
-    return {"doc": doc, "defs": list(dict.fromkeys(names))[:MAX_DEFS],
+    return {"doc": _launder_field(doc), "defs": list(dict.fromkeys(names))[:MAX_DEFS],
             "classes": list(dict.fromkeys(classes))[:MAX_CLASSES]}
 
 

@@ -84,8 +84,8 @@ DOC_BUCKETS = {
 # text (in Python 3 \w/\b are Unicode-aware by default and treat 中文 as word
 # chars, which would wreck the bilingual breakpoint extraction).
 STATUS_DONE = re.compile(r"(?<![\w])(done|已完成|完成|merged|closed|已合并)(?![\w])", re.I | re.A)
-STATUS_ACTIVE = re.compile(r"(in[\s_-]*progress|进行中|doing|开发中|未完成|todo|待办|wip)", re.I)
-IRON_LAW = re.compile(r"(MUST|REQUIRED|SHALL|严禁|必须|禁止|强制)", re.I)
+STATUS_ACTIVE = re.compile(r"(in[\s_-]*progress|进行中|doing|开发中|未完成|todo|待办|wip)(?![\w])", re.I | re.A)
+IRON_LAW = re.compile(r"(MUST|REQUIRED|SHALL|严禁|必须|禁止|强制)(?![\w])", re.I | re.A)
 ERROR_SIGNATURE = re.compile(
     r"(error|exception|traceback|failed|panic|报错|错误|异常|fatal|"
     r"\bECONNREFUSED\b|\bENOENT\b|\bNullPointer\b|\bSegfault\b)",
@@ -113,6 +113,7 @@ SECRET_KV = re.compile(
 HIGH_ENTROPY_TOKEN = re.compile(r"[A-Za-z0-9_\-\+/=]{24,}")
 
 TEXT_READ_LIMIT = 200_000  # bytes per doc; logs/large files are never fully read
+GENERATED_DOC_NAMES = {"DEHYDRATED_CONTEXT.md"}
 
 # Resume-routing thresholds (deterministic, zero-token).
 STALE_DAYS = 14            # snapshot older than this -> recommend re-snapshot
@@ -183,6 +184,8 @@ def iter_files(root):
     for dirpath, dirnames, filenames in os.walk(root):
         dirnames[:] = [d for d in dirnames if d not in skip and not d.startswith(".aider")]
         for fn in filenames:
+            if fn in GENERATED_DOC_NAMES:
+                continue
             yield os.path.join(dirpath, fn)
 
 
@@ -439,11 +442,26 @@ def extract_breakpoints(doc):
 # --------------------------------------------------------------------------- #
 
 
-def git_status_summary(root, git_present):
+def _porcelain_path(line):
+    path = line[3:] if len(line) > 3 else ""
+    if " -> " in path:
+        path = path.split(" -> ", 1)[1]
+    return path.strip().strip('"').replace("\\", "/")
+
+
+def git_status_summary(root, git_present, generated_names=None):
     if not git_present:
         return {"present": False, "lines": []}
     code, out, _ = run_git(root, ["status", "--porcelain"])
-    all_lines = [l for l in out.splitlines() if l.strip()] if code == 0 else []
+    ignored = {name.replace("\\", "/") for name in (generated_names or GENERATED_DOC_NAMES)}
+    all_lines = []
+    if code == 0:
+        for line in out.splitlines():
+            if not line.strip():
+                continue
+            if _porcelain_path(line) in ignored:
+                continue
+            all_lines.append(line)
     code2, branch, _ = run_git(root, ["rev-parse", "--abbrev-ref", "HEAD"])
     return {
         "present": True,
@@ -599,7 +617,7 @@ def detect_snapshot(root, out_name, git_present):
     m2 = re.search(r"dirty_files:\s*(\d+)", text)
     if m2:
         recorded = int(m2.group(1))
-    current = git_status_summary(root, git_present)["dirty_count"] if git_present else None
+    current = git_status_summary(root, git_present, {out_name})["dirty_count"] if git_present else None
     result["recorded_dirty"] = recorded
     result["current_dirty"] = current
     drift = (current - recorded) if (recorded is not None and current is not None) else None
@@ -665,7 +683,7 @@ def main():
     raw_docs = discover_docs(root)
     analyzed = [analyze_doc(root, d, git_present) for d in raw_docs]
     ranking, confused, confused_pair = arbitrate(analyzed)
-    git_summary = git_status_summary(root, git_present)
+    git_summary = git_status_summary(root, git_present, {args.out})
     breakpoints_by_doc = {d["rel"]: extract_breakpoints(d) for d in ranking}
 
     # Coverage gate (deterministic, repo-grounded). When doc-derived breakpoints
