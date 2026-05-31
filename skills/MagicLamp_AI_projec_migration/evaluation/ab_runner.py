@@ -4,23 +4,25 @@
 MagicLamp Migration - Real API A/B Runner (efficiency metrics)
 真实 API 双臂对比 runner(轮数 / 成功率 / 实测 usage)
 
-This is the rigorous half of the evaluation. It actually drives a model
-through a "resume this half-finished project" task under two arms:
+Drives a real model through a "resume this half-finished project" task
+under two arms, same tools + same question, only difference = handoff doc:
 
-  Arm A (baseline/blind): no handoff doc. The agent must discover state by
-         reading files with tools -> more turns, more input tokens.
-  Arm B (MagicLamp): DEHYDRATED_CONTEXT.md is provided up front -> the agent
-         should answer in fewer turns with far fewer input tokens.
+  Arm A (blind):     no doc. Agent discovers state via tools -> more turns/tokens.
+  Arm B (MagicLamp): DEHYDRATED_CONTEXT.md provided up front -> fewer turns/tokens.
 
-Both arms get the SAME tools (list_dir, read_file) and the SAME question.
-We log per-turn usage from the API `usage` field, count tool calls/turns,
-and score success against an expected keyword. Repeats N times, reports
-mean +/- spread, and writes evaluation/AB_REPORT.md.
+Logs per-turn `usage`, counts turns/tool-calls, scores success vs a keyword,
+repeats N times, writes evaluation/AB_REPORT.md with mean +/- spread.
 
-Requires:  pip install anthropic   and   $env:ANTHROPIC_API_KEY
+Providers (--provider):
+  deepseek   : OpenAI-compatible, base https://api.deepseek.com, model deepseek-chat
+               -> needs `pip install openai` + $env:DEEPSEEK_API_KEY
+  openai     : any OpenAI-compatible endpoint (--base-url to override)
+               -> needs `pip install openai` + $env:OPENAI_API_KEY
+  anthropic  : Claude. needs `pip install anthropic` + $env:ANTHROPIC_API_KEY
+
 Usage:
   python ab_runner.py --root <PROJECT_ROOT> --expect "支付" \
-                      --model claude-sonnet-4-5 --runs 5
+                      --provider deepseek --runs 5
 """
 
 import argparse
@@ -44,17 +46,33 @@ SYSTEM = (
     "不要臆测;不确定就用工具查。"
 )
 
-TOOLS = [
-    {"name": "list_dir", "description": "列出目录下的文件与子目录",
-     "input_schema": {"type": "object", "properties": {
-         "path": {"type": "string", "description": "相对项目根的路径,根用 '.'"}},
-         "required": ["path"]}},
-    {"name": "read_file", "description": "读取文本文件内容",
-     "input_schema": {"type": "object", "properties": {
-         "path": {"type": "string"}}, "required": ["path"]}},
-]
+# Provider defaults: (env_var, base_url, model, input_price_usd_per_1M)
+PROVIDERS = {
+    "deepseek": ("DEEPSEEK_API_KEY", "https://api.deepseek.com", "deepseek-chat", 0.27),
+    "openai":   ("OPENAI_API_KEY", None, "gpt-4o-mini", 0.15),
+    "anthropic": ("ANTHROPIC_API_KEY", None, "claude-sonnet-4-5", 3.0),
+}
 
 JUNK = {"node_modules", ".git", ".venv", "dist", "build", "__pycache__", ".next"}
+
+# ---- tool schemas in both dialects -----------------------------------------
+_PROPS = {"path": {"type": "string", "description": "相对项目根的路径,根用 '.'"}}
+ANTHROPIC_TOOLS = [
+    {"name": "list_dir", "description": "列出目录下的文件与子目录",
+     "input_schema": {"type": "object", "properties": _PROPS, "required": ["path"]}},
+    {"name": "read_file", "description": "读取文本文件内容",
+     "input_schema": {"type": "object", "properties": {"path": {"type": "string"}},
+                      "required": ["path"]}},
+]
+OPENAI_TOOLS = [
+    {"type": "function", "function": {
+        "name": "list_dir", "description": "列出目录下的文件与子目录",
+        "parameters": {"type": "object", "properties": _PROPS, "required": ["path"]}}},
+    {"type": "function", "function": {
+        "name": "read_file", "description": "读取文本文件内容",
+        "parameters": {"type": "object", "properties": {"path": {"type": "string"}},
+                       "required": ["path"]}}},
+]
 
 
 def safe_join(root, rel):
@@ -89,42 +107,102 @@ def tool_read_file(root, rel):
         return f"[err] {e}"
 
 
-def run_arm(client, model, root, arm, doc_text):
-    """Returns dict with turns, tool_calls, in_tok, out_tok, ok, answer."""
-    user_content = QUESTION
+def dispatch_tool(name, args_obj, root):
+    rel = (args_obj or {}).get("path", ".")
+    if name == "list_dir":
+        return tool_list_dir(root, rel)
+    return tool_read_file(root, rel)
+
+
+def build_user(arm, doc_text):
     if arm == "B" and doc_text:
-        user_content = (f"<迁移交接书 DEHYDRATED_CONTEXT.md>\n{doc_text}\n"
-                        f"</迁移交接书>\n\n{QUESTION}")
-    messages = [{"role": "user", "content": user_content}]
-    turns, tool_calls, in_tok, out_tok = 0, 0, 0, 0
+        return (f"<迁移交接书 DEHYDRATED_CONTEXT.md>\n{doc_text}\n"
+                f"</迁移交接书>\n\n{QUESTION}")
+    return QUESTION
+
+
+# ---- Anthropic arm ----------------------------------------------------------
+def run_arm_anthropic(client, model, root, arm, doc_text):
+    messages = [{"role": "user", "content": build_user(arm, doc_text)}]
+    turns = tool_calls = in_tok = out_tok = cache_hit = 0
     answer = ""
-    for _ in range(12):  # max turns guard
+    for _ in range(12):
         turns += 1
-        resp = client.messages.create(
-            model=model, max_tokens=1024, system=SYSTEM,
-            tools=TOOLS, messages=messages)
+        resp = client.messages.create(model=model, max_tokens=1024,
+                                       system=SYSTEM, tools=ANTHROPIC_TOOLS,
+                                       messages=messages)
         in_tok += resp.usage.input_tokens
         out_tok += resp.usage.output_tokens
-        tool_results = []
+        cache_hit += getattr(resp.usage, "cache_read_input_tokens", 0) or 0
+        results = []
         for block in resp.content:
             if block.type == "text":
                 answer += block.text
             elif block.type == "tool_use":
                 tool_calls += 1
-                rel = block.input.get("path", ".")
-                if block.name == "list_dir":
-                    res = tool_list_dir(root, rel)
-                else:
-                    res = tool_read_file(root, rel)
-                tool_results.append({"type": "tool_result",
-                                     "tool_use_id": block.id, "content": res[:8000]})
+                res = dispatch_tool(block.name, block.input, root)
+                results.append({"type": "tool_result", "tool_use_id": block.id,
+                                "content": res[:8000]})
         messages.append({"role": "assistant", "content": resp.content})
         if resp.stop_reason == "tool_use":
-            messages.append({"role": "user", "content": tool_results})
+            messages.append({"role": "user", "content": results})
             continue
         break
-    return {"turns": turns, "tool_calls": tool_calls,
-            "in_tok": in_tok, "out_tok": out_tok, "answer": answer.strip()}
+    return {"turns": turns, "tool_calls": tool_calls, "in_tok": in_tok,
+            "out_tok": out_tok, "cache_hit": cache_hit, "answer": answer.strip()}
+
+
+# ---- OpenAI-compatible arm (DeepSeek / OpenAI) ------------------------------
+def run_arm_openai(client, model, root, arm, doc_text):
+    messages = [{"role": "system", "content": SYSTEM},
+                {"role": "user", "content": build_user(arm, doc_text)}]
+    turns = tool_calls = in_tok = out_tok = cache_hit = 0
+    answer = ""
+    for _ in range(12):
+        turns += 1
+        resp = client.chat.completions.create(
+            model=model, max_tokens=1024, tools=OPENAI_TOOLS, messages=messages)
+        u = resp.usage
+        in_tok += u.prompt_tokens
+        out_tok += u.completion_tokens
+        cache_hit += getattr(u, "prompt_cache_hit_tokens", 0) or 0
+        msg = resp.choices[0].message
+        if msg.content:
+            answer += msg.content
+        if msg.tool_calls:
+            messages.append({"role": "assistant", "content": msg.content or "",
+                             "tool_calls": [tc.model_dump() for tc in msg.tool_calls]})
+            for tc in msg.tool_calls:
+                tool_calls += 1
+                try:
+                    a = json.loads(tc.function.arguments or "{}")
+                except Exception:
+                    a = {}
+                res = dispatch_tool(tc.function.name, a, root)
+                messages.append({"role": "tool", "tool_call_id": tc.id,
+                                 "content": res[:8000]})
+            continue
+        break
+    return {"turns": turns, "tool_calls": tool_calls, "in_tok": in_tok,
+            "out_tok": out_tok, "cache_hit": cache_hit, "answer": answer.strip()}
+
+
+def make_client(provider, base_url):
+    env_var, default_base, _, _ = PROVIDERS[provider]
+    key = os.environ.get(env_var)
+    if not key:
+        sys.exit(f"[err] set $env:{env_var}")
+    if provider == "anthropic":
+        try:
+            import anthropic
+        except ImportError:
+            sys.exit("[err] pip install anthropic")
+        return anthropic.Anthropic(api_key=key), run_arm_anthropic
+    try:
+        from openai import OpenAI
+    except ImportError:
+        sys.exit("[err] pip install openai")
+    return OpenAI(api_key=key, base_url=base_url or default_base), run_arm_openai
 
 
 def agg(vals):
@@ -135,22 +213,19 @@ def agg(vals):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", required=True)
-    ap.add_argument("--expect", required=True,
-                    help="success keyword expected in the answer (e.g. 支付)")
-    ap.add_argument("--model", default="claude-sonnet-4-5")
+    ap.add_argument("--expect", required=True, help="success keyword (e.g. 支付)")
+    ap.add_argument("--provider", choices=list(PROVIDERS), default="deepseek")
+    ap.add_argument("--model", default=None, help="override model name")
+    ap.add_argument("--base-url", default=None, help="override OpenAI-compatible base url")
     ap.add_argument("--runs", type=int, default=5)
-    ap.add_argument("--in-price", type=float, default=3.0)
+    ap.add_argument("--in-price", type=float, default=None, help="USD per 1M input tokens")
     ap.add_argument("--out", default=os.path.join(HERE, "AB_REPORT.md"))
     args = ap.parse_args()
 
-    try:
-        import anthropic
-    except ImportError:
-        sys.exit("[err] pip install anthropic")
-    key = os.environ.get("ANTHROPIC_API_KEY")
-    if not key:
-        sys.exit("[err] set $env:ANTHROPIC_API_KEY")
-    client = anthropic.Anthropic(api_key=key)
+    env_var, default_base, default_model, default_price = PROVIDERS[args.provider]
+    model = args.model or default_model
+    in_price = args.in_price if args.in_price is not None else default_price
+    client, run_arm = make_client(args.provider, args.base_url)
 
     root = os.path.abspath(args.root)
     doc_path = os.path.join(root, "DEHYDRATED_CONTEXT.md")
@@ -164,21 +239,20 @@ def main():
     data = {"A": [], "B": []}
     for i in range(args.runs):
         for arm in ("A", "B"):
-            r = run_arm(client, args.model, root, arm, doc_text)
+            r = run_arm(client, model, root, arm, doc_text)
             r["ok"] = args.expect in r["answer"]
             data[arm].append(r)
             print(f"run {i+1} arm {arm}: turns={r['turns']} tools={r['tool_calls']} "
-                  f"in={r['in_tok']} out={r['out_tok']} ok={r['ok']}")
+                  f"in={r['in_tok']} out={r['out_tok']} cache={r['cache_hit']} ok={r['ok']}")
 
-    p = args.in_price / 1_000_000
+    p = in_price / 1_000_000
     lines = ["# MagicLamp · 真实 API A/B 效率报告", "",
              f"- 时间: {datetime.now(timezone.utc).isoformat()}",
-             f"- 模型: {args.model} | 重复: {args.runs} 次/臂 | 成功关键词: `{args.expect}`",
-             f"- 输入单价: ${args.in_price}/1M", "",
+             f"- Provider: {args.provider} | 模型: {model} | 重复: {args.runs} 次/臂",
+             f"- 成功关键词: `{args.expect}` | 输入单价: ${in_price}/1M", "",
              "| 指标 | A 盲启动 | B 交接书 | 改善 |", "|---|---|---|---|"]
-    rows = [("到答轮数", "turns"), ("工具调用次数", "tool_calls"),
-            ("输入 token", "in_tok"), ("输出 token", "out_tok")]
-    for label, key_ in rows:
+    for label, key_ in [("到答轮数", "turns"), ("工具调用次数", "tool_calls"),
+                        ("输入 token", "in_tok"), ("输出 token", "out_tok")]:
         am, asd = agg([d[key_] for d in data["A"]])
         bm, bsd = agg([d[key_] for d in data["B"]])
         imp = ((am - bm) / am * 100) if am else 0
@@ -188,7 +262,7 @@ def main():
     lines.append(f"| 成功率 | {a_ok:.0f}% | {b_ok:.0f}% | {b_ok - a_ok:+.0f}pp |")
     a_cost = agg([d["in_tok"] for d in data["A"]])[0] * p
     b_cost = agg([d["in_tok"] for d in data["B"]])[0] * p
-    lines.append(f"| 输入成本/任务 | ${a_cost:.4f} | ${b_cost:.4f} | "
+    lines.append(f"| 输入成本/任务 | ${a_cost:.5f} | ${b_cost:.5f} | "
                  f"{((a_cost - b_cost) / a_cost * 100) if a_cost else 0:.1f}% |")
     lines += ["", "## 原始数据", "```json",
               json.dumps(data, ensure_ascii=False, indent=2), "```"]

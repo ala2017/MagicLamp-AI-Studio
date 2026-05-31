@@ -9,6 +9,8 @@
 | **Token / 成本** | `run_benchmark.py` / `estimate_savings.py` | 否(本地) | 盲扫体量 vs 交接书,确定性可复现 |
 | **多轮效率**(轮数/成功率) | `ab_runner.py` | 是(真实模型) | 实测 agent 跑迁移任务的行为 |
 
+> `ab_runner.py` 支持多 provider:`deepseek`(默认,OpenAI 兼容,便宜)、`openai`、`anthropic`。
+
 ---
 
 ## 1. Token / 成本对比(零 API,立即可跑)
@@ -41,12 +43,17 @@ python evaluation\estimate_savings.py --root "C:\path\to\proj"
 python magiclamp-project-migration\scripts\dehydrate.py --root "C:\path\to\proj"
 
 # 2) 跑双臂 A/B(A=盲启动 / B=带交接书),各 5 次取均值±方差
-$env:ANTHROPIC_API_KEY="sk-ant-..."
-python evaluation\ab_runner.py --root "C:\path\to\proj" --expect "支付" --runs 5
+#    默认 provider=deepseek(OpenAI 兼容,便宜);也支持 openai / anthropic
+$env:DEEPSEEK_API_KEY="sk-..."
+python evaluation\ab_runner.py --root "C:\path\to\proj" --expect "支付" --provider deepseek --runs 5
 ```
 
-输出 `AB_REPORT.md`,包含:到答轮数、工具调用次数、实测 input/output token、
+输出 `AB_REPORT.md`,包含:到答轮数、工具调用次数、实测 input/output/缓存 token、
 成功率、单任务输入成本——A vs B 并列对照。
+
+> **实测样例(deepseek-chat,15 文件半成品项目,5 次/臂):**
+> 轮数 4.6→2.0(-56.5%)、工具调用 9.2→2.8(-69.6%)、输入 token 4695→2326(-50.5%)、
+> 成功率 100% vs 100%。项目越大,盲启动 A 臂成本越爆炸,差距越悬殊。
 
 两臂使用**完全相同**的工具集与问题,唯一变量是"有没有交接书",从而干净隔离 Skill 的贡献。
 
