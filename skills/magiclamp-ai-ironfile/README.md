@@ -3,155 +3,79 @@
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/)
 [![Tests](https://img.shields.io/badge/tests-56%20passed-green.svg)](./tests)
 [![License](https://img.shields.io/badge/license-MIT-orange.svg)](./LICENSE)
-[![skills](https://img.shields.io/badge/skills.sh-magiclamp–ai–ironfile-purple.svg)](https://skills.sh/)
 
-> 你有没有过这样的瞬间——AI 正帮你改了 10 个文件，网络断了一下，回来一看，文件全是空的。
+> AI 已帮你重构了 6 个文件，刚改到第 7 个——"会话已中断，正在重新连接。"回来一看，第 4 个文件只剩一半。第 6 个文件是空的。你永远不知道是 token 耗尽、网络断了、上下文压缩、还是 agent 自己用错了工具。你只知道代码丢了，而且没有任何备份能救你。
 
-> 不是你的问题，是所有 AI 编程工具的共同缺陷。它们没有一个在写入前先备份，写入后验证文件是否完整。
+> **不是能不能修的问题——是根本无从修起。** 文件被截断了，你不知道原本完整的内容长什么样。你只能从记忆里拼回去。记忆力拼不全的部分，永远没了。
 
-> IronFile 就是解决这个问题的。它就是 AI 的文件安全中间件。
+> 所有 AI 编程工具——Claude Code、Cursor、Trae、Kiro、Codex——没有一个在写入文件前自动备份。没有一个在写入后验证文件是否完整。它们的文件写入是裸的、没有防护的、一出事就没有退路的。
 
----
-
-## 它做了什么
-
-AI 每次编辑你的文件时，IronFile 在后面做三件事：
-
-```
-🔒 备份 → ✍️ 写入 → ✅ 验证（出问题？自动回滚备份）
-```
-
-这就是铁律。**先备份，再动手，不对就回来。**
-
-不是事后修复——是根本不让坏文件出现。坏的被拦在写入那一步，好的才放进去。
-
-更厉害的是三层防线：
-
-| 防线 | 何时触发 | 做了什么 |
-|:---|:---|:---|
-| **L1 原子编辑守卫** | 每次 AI 写文件 | 备份 → 写入 → 校验大小和尾部 → 不对就回滚 |
-| **L2 Git 快照** | 多文件任务开始前 | 自动 git commit，随时可以回退到任务前状态 |
-| **L3 完整性扫描** | 会话启动时 | 扫描所有文件是否有截断、语法错误、被零字节清空 |
-
-三层配合：**L1 防每一笔脏写，L2 防整批崩盘，L3 防带着损伤上路。**
-
-## 一分钟上手
-
-安装只需两行（这是神灯AI工具箱 MagicLamp-AI-Studio 的一部分）：
-
-```bash
-git clone https://github.com/ala2017/MagicLamp-AI-Studio.git
-cd MagicLamp-AI-Studio/skills/magiclamp-ai-ironfile
-pip install -e .
-```
-
-验证：
-```bash
-ironfile --version
-```
-
-然后你就可以用了：
-
-```bash
-# 编辑一个文件（自动备份→写入→验证→失败回滚）
-ironfile edit path/to/file.py "old code" "new code"
-
-# 全局替换
-ironfile edit path/to/file.py "x = 1" "y = 2" --all
-
-# 多文件任务前打一个 checkpoint
-ironfile checkpoint "重构认证模块之前"
-
-# 不对就回退
-ironfile rollback
-
-# 会话重启后扫描一遍，确认文件完好
-ironfile scan
-```
-
-就这么简单。**每个 AI 项目都该有这四行命令。**
-
-## 为什么不是 Git 就够？
-
-Git 需要你**记得** commit。IronFile **自动**保护你每一次文件写入。
-
-- Git 防的是"两周后发现改错了"。
-- IronFile 防的是"下一秒 AI 断线，文件归零"。
-- 它的备份是**自动的、立即的、随时可回滚的**。不需要你记住什么。
-
-## 已有真实受害者
-
-这不是杞人忧天：
-
-- **Claude Code** — 5,636 行代码在一次中断后永久消失
-- **Trae** — 10-15 次更改在重启后丢失
-- **Kiro** — 50 行截断 bug 反复出现
-- **Codex CLI** — 沙箱绕过漏洞，可任意执行代码
-
-每一个都可以被 IronFile 拦截。只要 AI 通过 ironfile edit 写文件，上面的故事就不会发生。
-
-## Claude Skill 安装（全局生效）
-
-IronFile 已打包为 Claude Agent Skill。安装后，所有 AI 会话自动使用 ironfile edit 替代原生 Edit/Write：
-
-```bash
-npx skills add <path-to-magiclamp-ai-ironfile.skill> -g -y
-```
-
-或从 skills.sh 市场安装（即将上架）：
-
-```bash
-npx skills add <org>/magiclamp-ai-ironfile -g -y
-```
-
-## 测试
-
-56 个测试覆盖三层防线所有关键路径：
-
-```bash
-pip install pytest
-pytest tests/ -v
-```
-
-## 架构
-
-```
-AI 工具 → IronFile → 文件系统
-              ├── safe_edit.py     L1 原子编辑
-              ├── checkpoint.py    L2 Git 快照
-              ├── scanner.py       L3 完整性扫描
-              └── cli.py           统一 CLI
-```
-
-## 设计哲学
-
-> "安全不是'坏了能修'，而是'根本不会坏'。"
->
-> 预防的成本（备份+验证，<50ms）远低于修复的成本（2-5分钟+数千token+认知污染）。
-
-## 文件结构
-
-```
-magiclamp-ai-ironfile/
-├── src/ironfile/      ← 核心引擎
-│   ├── safe_edit.py       L1 原子编辑
-│   ├── checkpoint.py      L2 Git 快照
-│   ├── scanner.py         L3 完整性扫描
-│   └── cli.py             统一 CLI
-├── tests/              ← 56 个测试
-├── docs/               ← 协议规范 + 安全报告
-├── SKILL.md            ← Claude agent skill
-└── README.md           ← 你正在看的
-```
-
-## 为什么不叫"AI安全工具"？
-
-因为它根本不在乎你是 AI 还是人类。它的立场是 **"文件安全是第一性原理"**。谁在写文件不重要，文件有没有被写坏——这个它说了算。
-
-## 许可证
-
-MIT — 自由使用、自由修改、自由集成。
+> **IronFile 就是解决这个问题的。** 它是 AI 与文件系统之间的安全中间件。铁像铁一样，你的文件不会碎。
 
 ---
 
-**[神灯AI·IronFile](https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/skills/magiclamp-ai-ironfile)** — 不是又一个工具，是你的文件�
+## 你正在面对的风险——不止网络波动
+
+AI 编辑文件会失败，至少有六种不同的死法：
+
+### 1. Token 耗尽断
+
+AI 一次会话有 token 预算。用完了，连接就断。如果中断时 AI 正在写文件——文件可能已经写到一半被截断了。
+
+"Claude Code 在一次中断后，5,636 行代码永久消失。"这不是杜撰——这是 [GitHub issue #11416](https://github.com/anthropics/claude-code/issues/11416)。
+
+### 2. Agent 用错工具
+
+一个 AI agent 的工具有十几个——Edit、Write、MultiEdit、Bash、Replace。它可能先用 Write 覆盖了整个文件，然后用 Edit 往错误的位置插入代码，然后用 Bash 跑了一个重定向。任何一步出了问题，文件就乱了。而且 agent 不知道自己出错了——它继续自信地往下写。
+
+### 3. 上下文压缩丢状态
+
+AI 的上下文窗口有限。工作到一半，前面的信息被压缩了——包括"文件当前是什么样的"。于是它基于过期的认知继续编辑，结果就是：插入了不该插入的内容，删了不该删的行，或者用已经不存在的 old_str 去匹配替换。
+
+AI 自己不知道这些——它看到的上下文版本里，文件还是上次读到的那样。
+
+### 4. 会话中断
+
+"正在处理你的请求……""会话已过期。"你关掉 CoW，回来一看——三小时的工作只剩 60%。
+
+不只是网络。浏览器崩溃、系统更新重启、电量耗尽关机、误关了窗口——每一次中断都是一次截断抽奖。不知道哪个文件会被抽中。
+
+### 5. 工具本身有 bug
+
+Kiro 有一个反复出现的 50 行截断 bug。任何超过 50 行的文件写入都可能被截掉。Trae 在重启后丢失 10-15 次更改的历史记录。Codex CLI 甚至有一个沙箱绕过漏洞（[CVE-2025-61260](https://research.checkpoint.com/2025/openai-codex-cli-command-injection-vulnerability/)），攻击者可以在 AI 编辑文件时执行任意代码。
+
+这些不是你用得不好——这些是工具本身的缺陷。而 AI 没有文件安全机制，所以一旦触发，文件就坏了。
+
+### 6. 并发会话互踩
+
+你同时开了两个 AI 会话编辑同一个项目。第一个刚写完文件，第二个也打开了同一文件但读的是旧版本，然后覆盖写入——第一个会话的修改就丢了。
+
+---
+
+## 它不是修复工具，是防护工具
+
+IronFile 不去修复已经被截断的文件——**它让文件根本不会被截断。**
+
+每一次 AI 操作文件，IronFile 在后面做三件事：
+
+```
+🔒 备份文件 → ✍️ 执行写入 → ✅ 验证结果
+                            ↓
+                    （不对？立刻回滚备份）
+```
+
+这是铁律。**先备份，再动手，不对就回来。** 坏的被拦在写入那一步，好的才放进去。文件的完整性在写入节点就被保障了，不需要事后发现、事后抢救、事后追悔。
+
+更完整的，是三层防线：
+
+| 防线 | 何时触发 | 做了什么 | 防的是 |
+|:---|:---|:---|:---|
+| **L1 原子编辑守卫** | 每一次 Edit / Write | 备份 → 写入 → 校验文件大小+尾部完整性 → 失败自动回滚 | token耗尽、网络中断、工具bug、并发冲突|
+| **L2 Git 快照** | 多文件任务开始前 | 自动 git commit，记录 SHA-256 签名 | 一批操作中任何一个环节出错，整批回退 |
+| **L3 完整性扫描** | 会话启动时 | 扫描全项目：语法错误、文件截断、零字节清空、对比git HEAD | 带着上次中断的损伤上路 |
+
+三层配合的逻辑是：
+
+- **L1 守住了每一次写入的原子性。** 枪里每颗子弹都是好的。
+- **L2 守住了整个任务的连贯性。** 不只是一发一发打，你随时可以撤回整场战斗之前的版本。
+- **L3 守
