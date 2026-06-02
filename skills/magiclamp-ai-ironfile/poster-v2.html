@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="IronFile — 终结 AI 代码无故消失、截断、损坏的时代">
+<meta property="og:description" content="每次 AI 写文件，先冷备份，再落盘，当场验证。文件存得不对，立刻无缝回滚。">
+<meta property="og:type" content="website">
+<title>IronFile — 文件安全守卫</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080a;
+  --surface: #111114;
+  --border: #1c1c22;
+  --border-strong: #2a2a34;
+  --text: #e6e6ec;
+  --text-secondary: #8a8a96;
+  --text-dim: #5a5a66;
+  --rust: #c43a1a;
+  --rust-bright: #e84820;
+  --ember: #e87040;
+  --warm: #f0a050;
+  --cold: #6080a8;
+  --gap-xs: 0.75rem;
+  --gap-sm: 1.5rem;
+  --gap-md: 3rem;
+  --gap-lg: 5rem;
+  --max-width: 780px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif;
+  line-height: 1.8;
+  letter-spacing: 0.01em;
+}
+
+/* ── Atmospheric texture ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 10%, rgba(200,58,26,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 90%, rgba(96,128,168,0.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page { position: relative; z-index: 1; }
+
+/* ═══════ TYPOGRAPHIC SCALE ═══════ */
+.serif { font-family: 'Noto Serif SC', serif; }
+
+/* ═══════ HERO — editorial headline ═══════ */
+.hero {
+  padding: clamp(3rem, 8vw, 6rem) clamp(1.5rem, 5vw, 3rem);
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  color: var(--rust);
+  margin-bottom: var(--gap-sm);
+  font-weight: 700;
+}
+
+.hero h1 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 900;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.hero h1 .line { display: block; }
+
+.hero .subhead {
+  font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+  color: var(--rust-bright);
+  font-weight: 700;
+  margin-bottom: var(--gap-md);
+  letter-spacing: 0.03em;
+}
+
+/* ── Opening prose ── */
+.hero .prose {
+  max-width: var(--max-width);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+
+.hero .prose .stanza {
+  border-left: 2px solid var(--border-strong);
+  padding: 0.8rem 0 0.8rem 1.2rem;
+  margin-bottom: var(--gap-sm);
+}
+
+.hero .prose .stanza.last {
+  border-left-color: var(--rust);
+}
+
+.hero .prose .stanza p {
+  margin-bottom: 0.4rem;
+}
+
+.hero .prose .kicker {
+  color: var(--warm);
+  font-weight: 700;
+}
+
+/* ═══════ SCENARIO STRIP ═══════ */
+.scenario-strip {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.scenario-item {
+  text-align: center;
+  padding: 1.5rem 0.5rem;
+  border-right: 1px solid var(--border);
+}
+
+.scenario-item:last-child { border-right: none; }
+
+.scenario-item .num {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  color: var(--text-dim);
+  margin-bottom: 0.4rem;
+}
+
+.scenario-item .ico {
+  font-size: 1.8rem;
+  margin-bottom: 0.3rem;
+}
+
+.scenario-item .label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+/* ═══════ QUOTE — pull quote ═══════ */
+.pull-quote {
+  padding: var(--gap-lg) clamp(1.5rem, 5vw, 3rem);
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.pull-quote blockquote {
+  font-family: 'Noto Serif SC', serif;
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.4;
+  max-width: 650px;
+  margin: 0 auto;
+  letter-spacing: 0.02em;
+}
+
+.pull-quote blockquote .hl {
+  display: inline-block;
+  background: linear-gradient(180deg, transparent 55%, rgba(200,58,26,0.3) 55%);
+  padding: 0 0.15em;
+}
+
+.pull-quote .attribution {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+/* ═══════ THREE LAYERS — horizontal cards ═══════ */
+.layers-section {
+  padding: var(--gap-lg) clamp(1.5rem, 5vw, 3rem);
+}
+
+.layers-section h2 {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin-bottom: var(--gap-sm);
+  letter-spacing: 0.05em;
+}
+
+.layers-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+}
+
+.layer-card {
+  background: var(--surface);
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  gap: var(--gap-sm);
+  padding: 1.5rem;
+}
+
+.layer-card .idx {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--rust);
+  line-height: 1;
+  text-align: center;
+}
+
+.layer-card .info h3 {
+  font-size: 1rem;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.2rem;
+}
+
+.layer-card .info .detail {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.layer-card .info .meta {
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  color: var(--ember);
+  margin-top: 0.3rem;
+}
+
+.layer-card .arrow {
+  font-size: 1.5rem;
+  color: var(--border-strong);
+}
+
+/* ═══════ STAT ROW ═══════ */
+.stat-row {
+  display: flex;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat-col {
+  flex: 1;
+  text-align: center;
+  padding: 2rem 0.5rem;
+  border-right: 1px solid var(--border);
+}
+
+.stat-col:last-child { border-right: none; }
+
+.stat-col .val {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--rust);
+  line-height: 1;
+}
+
+.stat-col .val.alt { color: var(--cold); }
+
+.stat-col .lbl {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  color: var(--text-dim);
+  margin-top: 0.3rem;
+}
+
+/* ═══════ BOTTOM — install + footer ═══════ */
+.bottom {
+  padding: var(--gap-lg) clamp(1.5rem, 5vw, 3rem) var(--gap-md);
+}
+
+.install-card {
+  max-width: 580px;
+  margin: 0 auto var(--gap-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.5rem;
+}
+
+.install-card .label {
+  font-size: 0.6rem;
+  letter-spacing: 0.25em;
+  color: var(--rust);
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+}
+
+.install-card pre {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+}
+
+.install-card pre .c { color: var(--text-dim); }
+.install-card pre .k { color: var(--ember); }
+.install-card pre .s { color: var(--cold); }
+
+.footer {
+  text-align: center;
+  padding: var(--gap-md) 0 0;
+  border-top: 1px solid var(--border);
+}
+
+.footer .brand {
+  font-family: 'Noto Serif SC', serif;
+  font-size: 0.9rem;
+  letter-spacing: 0.15em;
+  color: var(--text-dim);
+  margin-bottom: 0.3rem;
+}
+
+.footer .byline {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+}
+
+/* ═══════ RESPONSIVE ═══════ */
+@media (max-width: 640px) {
+  .scenario-strip { grid-template-columns: repeat(3, 1fr); }
+  .scenario-item:nth-child(3) { border-right: none; }
+  .scenario-item:nth-child(4) { border-top: 1px solid var(--border); }
+  .scenario-item:nth-child(5) { border-top: 1px solid var(--border); }
+  .scenario-item:nth-child(6) { border-top: 1px solid var(--border); }
+  .layer-card { grid-template-columns: 60px 1fr; }
+  .layer-card .arrow { display: none; }
+  .stat-row { flex-wrap: wrap; }
+  .stat-col { flex-basis: 50%; }
+  .stat-col:nth-child(2) { border-right: none; }
+  .stat-col:nth-child(3) { border-top: 1px solid var(--border); }
+}
+
+@media (max-width: 400px) {
+  .scenario-strip { grid-template-columns: repeat(2, 1fr); }
+  .scenario-item:nth-child(2) { border-right: none; }
+  .scenario-item:nth-child(3) { border-top: 1px solid var(--border); border-right: 1px solid var(--border); }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- ═══════ HERO ═══════ -->
+<header class="hero">
+  <div class="hero-label">MAGICLAMP-AI &middot; 文件安全守卫</div>
+
+  <h1>
+    <span class="line">IronFile</span>
+  </h1>
+
+  <p class="subhead">终结 AI 代码无故消失、截断、损坏的时代</p>
+
+  <div class="prose">
+    <div class="stanza">
+      <p>你一定也遇到过这种绝望时刻：AI 核心代码写到一半，会话突然断了 —— <span class="kicker">要不是网络波动，要不是额度溢出。</span>当你恢复对话，几千行代码要么直接归零，要么被无情截断，要么被另一个会话踩得稀碎。</p>
+    </div>
+    <div class="stanza">
+      <p>这不是操作失误，也不是单一 AI 工具的偶发 Bug。而是目前的开发工具链中，<span class="kicker">普遍缺乏一道死守在 AI 与文件系统之间的底层安全闸门。</span></p>
+    </div>
+    <div class="stanza last">
+      <p>每次 AI 执行文件写入，IronFile 强制执行<span class="kicker">「先冷备份、再行落盘、当场验证」</span>的原子保护协议。一旦发现语法破损或文件截断，立刻无缝回滚至备份状态。<span class="kicker">不修不补，从源头杜绝任何损坏文件进入你的视线。</span></p>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════ SCENARIO STRIP ═══════ -->
+<div class="scenario-strip">
+  <div class="scenario-item">
+    <div class="num">01</div>
+    <div class="ico">💔</div>
+    <div class="label">写一半断了</div>
+  </div>
+  <div class="scenario-item">
+    <div class="num">02</div>
+    <div class="ico">📄</div>
+    <div class="label">文件变空</div>
+  </div>
+  <div class="scenario-item">
+    <div class="num">03</div>
+    <div class="ico">✂️</div>
+    <div class="label">被截断了</div>
+  </div>
+  <div class="scenario-item">
+    <div class="num">04</div>
+    <div class="ico">🔄</div>
+    <div class="label">被覆盖了</div>
+  </div>
+  <div class="scenario-item">
+    <div class="num">05</div>
+    <div class="ico">🪞</div>
+    <div class="label">只剩一半</div>
+  </div>
+  <div class="scenario-item">
+    <div class="num">06</div>
+    <div class="ico">🤷</div>
+    <div class="label">恢复不了</div>
+  </div>
+</div>
+
+<!-- ═══════ PULL QUOTE ═══════ -->
+<div class="pull-quote">
+  <blockquote>
+    安全不是<span class="hl">坏了能修</span>，<br>而是<span class="hl">根本不会坏</span>。
+  </blockquote>
+  <div class="attribution">— IronFile 设计哲学</div>
+</div>
+
+<!-- ═══════ THREE LAYERS ═══════ -->
+<section class="layers-section">
+  <h2>三层防线</h2>
+  <div class="layers-grid">
+    <div class="layer-card">
+      <div class="idx">L1</div>
+      <div class="info">
+        <h3>原子编辑守卫</h3>
+        <div class="detail">备份 → 写入 → 验证大小和尾部完整性 → 不对就回滚。每一步自动，每一步验证。</div>
+        <div class="meta">每一次 AI 写入文件</div>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="layer-card">
+      <div class="idx">L2</div>
+      <div class="info">
+        <h3>Git 快照</h3>
+        <div class="detail">多文件任务前自动 commit + SHA-256 签名 manifest。随时回退到任务前状态。</div>
+        <div class="meta">多文件任务开始前</div>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+    <div class="layer-card">
+      <div class="idx">L3</div>
+      <div class="info">
+        <h3>完整性扫描</h3>
+        <div class="detail">六种文件格式语法检测 + git HEAD 大小对比。发现截断、语法错、零字节清空立刻修复。</div>
+        <div class="meta">每次会话启动时</div>
+      </div>
+      <div class="arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ STAT ROW ═══════ -->
+<div class="stat-row">
+  <div class="stat-col">
+    <div class="val">&lt;50ms</div>
+    <div class="lbl">每次写入额外延迟</div>
+  </div>
+  <div class="stat-col">
+    <div class="val alt">56</div>
+    <div class="lbl">测试用例全绿</div>
+  </div>
+  <div class="stat-col">
+    <div class="val">15</div>
+    <div class="lbl">安全缺陷已修复</div>
+  </div>
+  <div class="stat-col">
+    <div class="val alt">0</div>
+    <div class="lbl">文件丢失事故</div>
+  </div>
+</div>
+
+<!-- ═══════ BOTTOM ═══════ -->
+<div class="bottom">
+  <div class="install-card">
+    <div class="label">三十秒安装</div>
+    <pre><span class="c"># 克隆主仓库</span>
+git clone https://github.com/ala2017/MagicLamp-AI-Studio.git
+<span class="k">cd</span> MagicLamp-AI-Studio/<span class="k">skills</span>/magiclamp-ai-ironfile
+pip install -e .
+<span class="k">ironfile</span> <span class="s">--version</span>
+
+<span class="c"># 开始使用</span>
+<span class="k">ironfile edit</span> <span class="s">file.py</span> <span class="s">"old"</span> <span class="s">"new"</span>
+<span class="k">ironfile checkpoint</span> <span class="s">"任务描述"</span>
+<span class="k">ironfile scan</span></pre>
+  </div>
+
+  <div class="footer">
+    <div class="brand">IRONFILE</div>
+    <div class="byline">神灯智库 · 神灯AI工作室 出品</div>
+  </div>
+</div>
+
+</div>
+
+</body>
+</html>
