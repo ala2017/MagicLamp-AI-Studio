@@ -84,6 +84,8 @@ IronFile 不去修复已经被截断的文件——**它让文件根本不会被
 
 ## 一分钟上手
 
+克隆仓库并安装 IronFile：
+
 ```bash
 git clone https://github.com/ala2017/MagicLamp-AI-Studio.git
 cd MagicLamp-AI-Studio/skills/magiclamp-ai-ironfile
@@ -111,7 +113,18 @@ ironfile rollback
 ironfile scan
 ```
 
-四句命令，覆盖了 AI 编程的全部文件安全需求。
+## Claude Agent Skill 安装
+
+IronFile 同时以 Claude Agent Skill 分发。Skill 安装后，AI 会话自动使用 `ironfile edit` 替代原生 Edit/Write：
+
+```bash
+npx skills add path/to/magiclamp-ai-ironfile -g -y
+```
+
+或从 skills.sh 市场安装（即将上架）：
+
+```bash
+npx skills add magiclamp-ai-ironfile -g -y
 
 ---
 
@@ -189,10 +202,4 @@ magiclamp-ai-ironfile/
 
 ---
 
-## 许可证
-
-MIT — 自由使用、自由修改、自由集成。你不需要成为一个文件安全专家——你只需要装 IronFile。
-
----
-
-**[神灯AI·IronFile](https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/skills/magiclamp-ai-ironfile)** — 铁一样的文件，不会碎。
+#
