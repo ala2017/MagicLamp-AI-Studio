@@ -78,4 +78,121 @@ IronFile 不去修复已经被截断的文件——**它让文件根本不会被
 
 - **L1 守住了每一次写入的原子性。** 枪里每颗子弹都是好的。
 - **L2 守住了整个任务的连贯性。** 不只是一发一发打，你随时可以撤回整场战斗之前的版本。
--
+- **L3 守住了新会话的起点。** 这次回来，先告诉大家上次打完战场清干净了没有。
+
+---
+
+## 一分钟上手
+
+```bash
+git clone https://github.com/ala2017/MagicLamp-AI-Studio.git
+cd MagicLamp-AI-Studio/skills/magiclamp-ai-ironfile
+pip install -e .
+```
+
+验证：
+```bash
+ironfile --version
+```
+
+然后你的 AI 就可以改用安全通道了：
+
+```bash
+# 编辑文件（自动备份→写入→验证→失败回滚）
+ironfile edit path/to/file.py "old code" "new code"
+
+# 多文件任务前打 checkpoint
+ironfile checkpoint "重构认证模块之前"
+
+# 出问题了？回退
+ironfile rollback
+
+# 会话重启后扫一遍
+ironfile scan
+```
+
+四句命令，覆盖了 AI 编程的全部文件安全需求。
+
+---
+
+## Git vs IronFile —— 不是一个维度的东西
+
+Git 是版本控制的保险柜。**但保险柜的门要你手动关上。**
+
+- Git 防的是：两周后发现改错了，查历史。
+- IronFile 防的是：下一秒截断，这一秒已经有备份。
+
+Git 需要你记得 commit。如果 AI 正在疯狂改文件、刚好改到一半 session 断了——你还没来得及 commit，那是 git 也救不了的。而 IronFile 的备份是**自动的、每一次写入都有的、立即可以回滚的**。文件写入安全的颗粒度从"任务级"变成了"写入级"。
+
+---
+
+## 56 个测试，覆盖三种死亡场景
+
+```bash
+pip install pytest
+pytest tests/ -v
+```
+
+测试覆盖了 ASCII、UTF-8 中文、emoji、二进制文件、符号链接、截断检测、膨胀攻击、TOCTOU 竞态、checkpoint 签名防伪、完整回滚流程。
+
+更详细的独立安全审查：[docs/security-review-2026-06-02.md](docs/security-review-2026-06-02.md)
+
+---
+
+## 架构
+
+```
+AI 工具                     IronFile                    文件系统
+────────                   ────────                    ────────
+                            ┌─ safe_edit.py  L1 原子编辑
+任何 AI 编码工具 ──→        ├─ checkpoint.py L2 Git 快照   ──→ 你的文件
+                            ├─ scanner.py   L3 完整性扫描
+                            └─ cli.py       统一 CLI 入口
+```
+
+---
+
+## 为什么叫 "IronFile"？
+
+Iron = 铁。铁的价值在于不可逆的刚性——一旦冷备份写入，就是铁打的事实。你的文件也是一样：写入前已有备份，写入后当场验证，任何异常都退不回备份之前的状态。
+
+> **"安全不是'坏了能修'，而是'根本不会坏'。"**
+>
+> 预防的成本（备份 + 验证，< 50ms）远低于修复的成本（2-5 分钟回溯 + 数千 token 重写 + 被污染的记忆里那些再也找不回来的逻辑）。
+
+---
+
+## 设计哲学（来自同一次红队对抗的教训）
+
+> **这个项目自己的核心引擎在开发时发现了一个致命 bug：** str/bytes 类型混用使得对所有含中文/emoji 文件的编辑全部失败。也就是——IronFile 需要被 IronFile 保护，才能写出正确的 IronFile。
+
+这是自举。这是安全工具的典型悖论。我们选择直面并解决它，而不是隐藏它。
+
+**完整的缺陷分析、攻击向量、修复记录都在安全报告里。**
+
+---
+
+## 文件结构
+
+```
+magiclamp-ai-ironfile/
+├── src/ironfile/      ← 核心引擎
+│   ├── safe_edit.py       L1 原子编辑 (4 个自定义异常 + 7 项安全加固)
+│   ├── checkpoint.py      L2 Git 快照 (SHA-256 签名 + manifest 防伪)
+│   ├── scanner.py         L3 完整性扫描 (6 种文件格式)
+│   └── cli.py             统一 CLI
+├── tests/              ← 56 个测试，全绿
+├── docs/               ← 协议规范 + PRD + 红队安全审查报告 + 营销海报
+├── SKILL.md            ← Claude Agent Skill
+└── README.md           ← 你正在看的
+```
+
+---
+
+## 许可证
+
+MIT — 自由使用、自由修改、自由集成。你不需要成为一个文件安全专家——你只需要装 IronFile。
+
+---
+
+**[神灯AI·IronFile](https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/skills/magiclamp-ai-ironfile)** — 铁一样的文件，不会碎。

@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.eggs/
+*.so
+
+# Tests
+.pytest_cache/
+pytest-cache-files*/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IronFile runtime artifacts (auto-generated)
+.ironfile/
+
+# Skill packaging artifacts
+*.skill

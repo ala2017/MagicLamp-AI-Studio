@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IronFile — 铁一样的文件，不会碎</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;700;900&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --iron-deep: #0a0a0c;
+  --iron-dark: #16161a;
+  --iron-mid: #242429;
+  --iron-surface: #2a2a30;
+  --iron-light: #3a3a42;
+  --steel: #6b6b78;
+  --steel-bright: #9a9aa8;
+  --forge-orange: #f04a00;
+  --forge-red: #d43010;
+  --forge-ember: #ff6b35;
+  --forge-glow: #ff8c4a;
+  --spark: #ffcc80;
+  --white: #e8e8ec;
+  --danger-red: #e63946;
+  --text-dim: #7a7a88;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--iron-deep);
+  color: var(--white);
+  font-family: 'Noto Sans SC', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── Iron texture background ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(240,74,0,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 60%, rgba(240,74,0,0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 100%, rgba(255,107,53,0.03) 0%, transparent 60%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Grid overlay ── */
+.grid-overlay {
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  padding: 4rem 0;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--iron-surface);
+  border: 1px solid var(--iron-light);
+  padding: 0.4rem 1.2rem;
+  border-radius: 100px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
+  color: var(--steel-bright);
+  margin-bottom: 3rem;
+  animation: fadeInDown 0.8s ease-out;
+}
+
+.hero-badge .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--forge-orange);
+  box-shadow: 0 0 8px var(--forge-orange);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.hero-title {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(3rem, 8vw, 7rem);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  line-height: 1;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(180deg,
+    #f0f0f8 0%,
+    #c0c0d0 30%,
+    #808098 70%,
+    #505060 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 40px rgba(240,74,0,0.2));
+  animation: fadeInUp 0.8s ease-out 0.15s both;
+}
+
+.hero-subtitle {
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  color: var(--text-dim);
+  max-width: 600px;
+  margin-bottom: 3rem;
+  letter-spacing: 0.08em;
+  animation: fadeInUp 0.8s ease-out 0.3s both;
+}
+
+.hero-tagline {
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+  font-weight: 900;
+  color: var(--forge-orange);
+  margin-bottom: 2rem;
+  letter-spacing: 0.1em;
+  animation: fadeInUp 0.8s ease-out 0.4s both;
+}
+
+.hero-tagline .slash {
+  color: var(--iron-light);
+  margin: 0 0.3em;
+}
+
+/* ── CMD snippet ── */
+.cmd-box {
+  background: var(--iron-dark);
+  border: 1px solid var(--iron-light);
+  border-radius: 8px;
+  padding: 1.5rem 2rem;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.9rem;
+  color: var(--steel-bright);
+  text-align: left;
+  max-width: 580px;
+  margin: 0 auto 4rem;
+  position: relative;
+  animation: fadeInUp 0.8s ease-out 0.5s both;
+}
+
+.cmd-box::before {
+  content: 'TERMINAL';
+  position: absolute;
+  top: -0.6rem;
+  left: 1rem;
+  background: var(--iron-dark);
+  padding: 0 0.5rem;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--forge-orange);
+}
+
+.cmd-line {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+  align-items: center;
+}
+
+.cmd-prompt {
+  color: var(--forge-orange);
+  flex-shrink: 0;
+}
+
+.cmd-arg { color: var(--forge-ember); }
+.cmd-str  { color: #7ec87e; }
+.cmd-comment { color: var(--text-dim); font-size: 0.8rem; }
+
+/* ── Shield Visual ── */
+.shield-section {
+  padding: 6rem 0;
+  position: relative;
+}
+
+.shield-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  margin-bottom: 5rem;
+}
+
+.shield-ring {
+  width: 300px;
+  height: 300px;
+  border: 2px solid var(--iron-light);
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: rotateSlow 30s linear infinite;
+}
+
+.shield-ring::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(240,74,0,0.15);
+  border-radius: 50%;
+  animation: rotateSlow 20s linear infinite reverse;
+}
+
+.shield-ring::after {
+  content: '';
+  position: absolute;
+  inset: 30px;
+  border: 1px solid rgba(240,74,0,0.08);
+  border-radius: 50%;
+}
+
+.shield-icon {
+  font-size: 5rem;
+  filter: drop-shadow(0 0 30px rgba(240,74,0,0.4));
+  animation: float 4s ease-in-out infinite;
+}
+
+.shield-label {
+  position: absolute;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  color: var(--steel);
+}
+
+.shield-l1 { top: -5px; left: 50%; transform: translateX(-50%); animation: fadeInUp 0.6s ease-out 0.8s both; }
+.shield-l2 { top: 50%; right: -30px; transform: translateY(-50%); animation: fadeInUp 0.6s ease-out 1s both; }
+.shield-l3 { bottom: -5px; left: 50%; transform: translateX(-50%); animation: fadeInUp 0.6s ease-out 1.2s both; }
+
+/* ── Death Scenarios ── */
+.section-header {
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+.section-header h2 {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  letter-spacing: 0.1em;
+  color: var(--forge-orange);
+  margin-bottom: 0.5rem;
+}
+
+.section-header p {
+  color: var(--text-dim);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.death-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1rem;
+  margin-bottom: 6rem;
+}
+
+.death-card {
+  background: var(--iron-dark);
+  border: 1px solid var(--iron-mid);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.death-card:hover {
+  border-color: var(--forge-orange);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(240,74,0,0.08);
+}
+
+.death-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--forge-orange), transparent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform 0.4s ease;
+}
+
+.death-card:hover::before {
+  transform: scaleY(1);
+}
+
+.death-number {
+  font-family: 'Orbitron', monospace;
+  font-size: 3rem;
+  font-weight: 900;
+  color: rgba(240,74,0,0.15);
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  line-height: 1;
+}
+
+.death-card h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.death-card p {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+
+.death-card .glitch-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--danger-red);
+  margin-top: 1rem;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.death-card:hover .glitch-text { opacity: 1; }
+
+/* ── Three Layers ── */
+.layers-section { padding: 4rem 0 6rem; }
+
+.layer-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  gap: 2rem;
+  align-items: center;
+  padding: 2rem;
+  margin-bottom: 1rem;
+  background: var(--iron-dark);
+  border: 1px solid var(--iron-mid);
+  position: relative;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.layer-row:hover {
+  border-color: var(--forge-orange);
+  transform: translateX(4px);
+}
+
+.layer-badge {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--iron-mid);
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--forge-orange);
+  position: relative;
+}
+
+.layer-badge::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border: 1px solid var(--iron-light);
+}
+
+.layer-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.3rem;
+}
+
+.layer-info p {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+}
+
+.layer-info .layer-trigger {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: var(--forge-ember);
+  margin-top: 0.5rem;
+}
+
+.layer-arrow {
+  font-size: 2rem;
+  color: var(--iron-light);
+  transition: color 0.3s, transform 0.3s;
+}
+
+.layer-row:hover .layer-arrow {
+  color: var(--forge-orange);
+  transform: translateX(6px);
+}
+
+/* ── Stats Bar ── */
+.stats-bar {
+  display: flex;
+  justify-content: center;
+  gap: 4rem;
+  padding: 3rem 0;
+  border-top: 1px solid var(--iron-mid);
+  border-bottom: 1px solid var(--iron-mid);
+  margin-bottom: 6rem;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  text-align: center;
+}
+
+.stat-value {
+  font-family: 'Orbitron', monospace;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--forge-orange);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+  margin-top: 0.3rem;
+}
+
+/* ── Quotes ── */
+.quote-section { padding: 4rem 0 6rem; }
+
+.big-quote {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 900;
+  line-height: 1.3;
+  text-align: center;
+  margin-bottom: 1rem;
+  letter-spacing: 0.03em;
+}
+
+.quote-highlight {
+  display: inline-block;
+  background: linear-gradient(180deg, transparent 60%, rgba(240,74,0,0.3) 60%);
+  padding: 0 0.2em;
+}
+
+.quote-attribution {
+  text-align: center;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+}
+
+/* ── Install Section ── */
+.install-section {
+  background: var(--iron-dark);
+  border: 1px solid var(--iron-light);
+  padding: 3rem;
+  max-width: 700px;
+  margin: 0 auto 6rem;
+  position: relative;
+}
+
+.install-section::before {
+  content: 'GET STARTED';
+  position: absolute;
+  top: -0.6rem;
+  left: 2rem;
+  background: var(--iron-dark);
+  padding: 0 0.8rem;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  color: var(--forge-orange);
+}
+
+.install-section .code-block {
+  background: var(--iron-deep);
+  padding: 1.5rem;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.8rem;
+  color: var(--steel-bright);
+  overflow-x: auto;
+}
+
+.install-section .code-block .green { color: #7ec87e; }
+.install-section .code-block .orange { color: var(--forge-ember); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center;
+  padding: 4rem 0;
+  border-top: 1px solid var(--iron-mid);
+}
+
+.footer-brand {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+
+.footer-tagline {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+}
+
+.footer-links {
+  margin-top: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.footer-link {
+  color: var(--steel);
+  text-decoration: none;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  transition: color 0.3s;
+}
+
+.footer-link:hover { color: var(--forge-orange); }
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes forgeGlow {
+  0%, 100% { box-shadow: 0 0 20px rgba(240,74,0,0.1); }
+  50% { box-shadow: 0 0 40px rgba(240,74,0,0.25); }
+}
+
+/* ── Scroll Reveal ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .layer-row {
+    grid-template-columns: 60px 1fr;
+  }
+
+  .layer-arrow { display: none; }
+
+  .stats-bar { gap: 2rem; }
+
+  .shield-ring { width: 220px; height: 220px; }
+  .shield-l2 { right: -10px; }
+
+  .install-section { padding: 2rem 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  .death-grid { grid-template-columns: 1fr; }
+  .hero-title { font-size: 2.5rem; }
+  .container { padding: 0 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="grid-overlay"></div>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero container">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    MAGICLAMP-AI &middot; IRONFILE &middot; V0.2.0
+  </div>
+
+  <h1 class="hero-title">IronFile</h1>
+  <p class="hero-subtitle">AI 编程文件安全中间件 &middot; 让 AI 永远不会因为会话中断而丢失你的代码</p>
+
+  <div class="hero-tagline">
+    铁一样的文件<span class="slash">/</span>不会碎
+  </div>
+
+  <div class="cmd-box">
+    <div class="cmd-line">
+      <span class="cmd-prompt">$</span>
+      <span class="cmd-arg">ironfile</span>
+      <span class="cmd-arg">edit</span>
+      <span class="cmd-str">path/to/file.py</span>
+      <span class="cmd-str">"old"</span>
+      <span class="cmd-str">"new"</span>
+    </div>
+    <div class="cmd-line">
+      <span class="cmd-prompt">$</span>
+      <span class="cmd-arg">ironfile</span>
+      <span class="cmd-arg">checkpoint</span>
+      <span class="cmd-str">"重构之前"</span>
+    </div>
+    <div class="cmd-line">
+      <span class="cmd-prompt">$</span>
+      <span class="cmd-arg">ironfile</span>
+      <span class="cmd-arg">scan</span>
+      <span class="cmd-comment">&larr; 会话启动时扫描损伤</span>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SHIELD VISUAL ═══════ -->
+<section class="shield-section container">
+  <div class="shield-visual reveal">
+    <div class="shield-ring">
+      <div class="shield-icon">🛡️</div>
+    </div>
+    <div class="shield-label shield-l1">L1 原子编辑</div>
+    <div class="shield-label shield-l2">L2 GIT 快照</div>
+    <div class="shield-label shield-l3">L3 完整性扫描</div>
+  </div>
+</section>
+
+<!-- ═══════ DEATH SCENARIOS ═══════ -->
+<section class="container">
+  <div class="section-header reveal">
+    <h2>六种死亡场景</h2>
+    <p>AI 编辑文件会失败，至少有六种不同的死法。而你不需要记住这些——IronFile 替你记住了。</p>
+  </div>
+
+  <div class="death-grid">
+    <div class="death-card reveal">
+      <div class="death-number">01</div>
+      <h3>Token 耗尽断</h3>
+      <p>单次会话 token 预算用尽，文件写到一半被截断或零清空。<br>Claude Code — 5,636 行永久消失。</p>
+      <div class="glitch-text">[FILE CORRUPTED]</div>
+    </div>
+    <div class="death-card reveal">
+      <div class="death-number">02</div>
+      <h3>Agent 用错工具</h3>
+      <p>AI 在 Write / Edit / Bash 之间误操作——覆盖、插入错位、重定向覆盖。<br>AI 不知道自己出错了。</p>
+      <div class="glitch-text">[TOOL MISMATCH]</div>
+    </div>
+    <div class="death-card reveal">
+      <div class="death-number">03</div>
+      <h3>上下文压缩丢状态</h3>
+      <p>窗口压缩后 AI 基于过期的文件认知继续编辑，用不存在的 old_str 去替换。</p>
+      <div class="glitch-text">[STATE LOST]</div>
+    </div>
+    <div class="death-card reveal">
+      <div class="death-number">04</div>
+      <h3>会话中断</h3>
+      <p>浏览器崩溃、系统关机、误关窗口——每次中断都是一次截断抽奖。</p>
+      <div class="glitch-text">[SESSION DEAD]</div>
+    </div>
+    <div class="death-card reveal">
+      <div class="death-number">05</div>
+      <h3>工具自身有 Bug</h3>
+      <p>Kiro 50 行截断、Trae 重启丢历史、Codex 沙箱绕过漏洞——不是你的问题。</p>
+      <div class="glitch-text">[VULNERABILITY FOUND]</div>
+    </div>
+    <div class="death-card reveal">
+      <div class="death-number">06</div>
+      <h3>并发会话互踩</h3>
+      <p>两个 AI session 同时编辑一个项目，后写入的覆盖先完成的。静默丢失。</p>
+      <div class="glitch-text">[RACE CONDITION]</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ THREE LAYERS ═══════ -->
+<section class="layers-section container">
+  <div class="section-header reveal">
+    <h2>三层防线</h2>
+    <p>L1 防每一笔脏写，L2 防整批崩盘，L3 防带着损伤上路。</p>
+  </div>
+
+  <div class="layer-row reveal">
+    <div class="layer-badge">L1</div>
+    <div class="layer-info">
+      <h3>原子编辑守卫</h3>
+      <p>备份 → 写入 → 验证大小和尾部完整性 → 不对就回滚。每一步自动，每一步验证。</p>
+      <div class="layer-trigger">触发：每一次 AI 写入文件</div>
+    </div>
+    <div class="layer-arrow">→</div>
+  </div>
+
+  <div class="layer-row reveal">
+    <div class="layer-badge">L2</div>
+    <div class="layer-info">
+      <h3>Git 快照</h3>
+      <p>多文件任务前自动 commit + SHA-256 签名 manifest。随时回退到任务前状态。</p>
+      <div class="layer-trigger">触发：多文件任务开始前</div>
+    </div>
+    <div class="layer-arrow">→</div>
+  </div>
+
+  <div class="layer-row reveal">
+    <div class="layer-badge">L3</div>
+    <div class="layer-info">
+      <h3>完整性扫描</h3>
+      <p>六种文件格式语法检测 + git HEAD 大小对比。发现截断、语法错、零字节清空——立刻修复。</p>
+      <div class="layer-trigger">触发：每次会话启动时</div>
+    </div>
+    <div class="layer-arrow">→</div>
+  </div>
+</section>
+
+<!-- ═══════ STATS ═══════ -->
+<div class="stats-bar reveal">
+  <div class="stat-item">
+    <div class="stat-value">&lt;50ms</div>
+    <div class="stat-label">每次写入额外延迟</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">56</div>
+    <div class="stat-label">测试用例通过</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">15</div>
+    <div class="stat-label">安全缺陷已修复</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-value">0</div>
+    <div class="stat-label">文件丢失事故</div>
+  </div>
+</div>
+
+<!-- ═══════ QUOTES ═══════ -->
+<section class="quote-section container">
+  <div class="big-quote reveal">
+    安全不是<span class="quote-highlight">"坏了能修"</span>，<br>而是<span class="quote-highlight">"根本不会坏"</span>。
+  </div>
+  <div class="quote-attribution">— IronFile 设计哲学</div>
+
+  <div class="big-quote reveal" style="margin-top:3rem;">
+    预防的成本<span class="quote-highlight">&lt;50ms</span>，<br>修复的成本<span class="quote-highlight">&gt;5分钟 + 数千token + 认知污染</span>
+  </div>
+</section>
+
+<!-- ═══════ INSTALL ═══════ -->
+<section class="container">
+  <div class="install-section reveal">
+    <div class="code-block">
+      <span class="green"># 克隆 + 安装</span><br>
+      git clone https://github.com/ala2017/MagicLamp-AI-Studio.git<br>
+      <span class="orange">cd</span> MagicLamp-AI-Studio/skills/magiclamp-ai-ironfile<br>
+      pip install -e .<br><br>
+      <span class="green"># 验证</span><br>
+      ironfile --version<br><br>
+      <span class="green"># 开始使用</span><br>
+      ironfile edit file.py <span class="orange">"old" "new"</span><br>
+      ironfile checkpoint <span class="orange">"任务描述"</span><br>
+      ironfile scan
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer class="footer container reveal">
+  <div class="footer-brand">IRONFILE</div>
+  <div class="footer-tagline">铁一样的文件，不会碎</div>
+  <div class="footer-links">
+    <a href="https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/skills/magiclamp-ai-ironfile" class="footer-link">GitHub</a>
+    <a href="#" class="footer-link">PRD</a>
+    <a href="#" class="footer-link">安全报告</a>
+    <a href="#" class="footer-link">协议规范</a>
+  </div>
+  <div style="margin-top: 2rem; color: var(--text-dim); font-size: 0.7rem; letter-spacing: 0.1em;">
+    神灯AI · MagicLamp-AI-Studio © 2026
+  </div>
+</footer>
+
+<!-- ═══════ SCROLL REVEAL ═══════ -->
+<script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Initial visible elements (hero area)
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  if (el.getBoundingClientRect().top < window.innerHeight) {
+    setTimeout(() => el.classList.add('visible'), 100 + i * 80);
+  }
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ironfile"
+version = "0.1.0"
+description = "Atomic file safety middleware for AI coding agents. Never lose code to a dead session again."
+readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "神灯AI · IronFile Contributors"}
+]
+keywords = ["ai", "coding-agent", "file-safety", "atomic-write", "backup", "integrity"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: System :: Filesystems",
+]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.optional-dependencies]
+fuse = ["fusepy>=3.0"]
+dev = ["pytest>=7.0", "pytest-cov"]
+
+[project.scripts]
+ironfile = "ironfile.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/magiclamp-ai/ironfile"
+Documentation = "https://github.com/magiclamp-ai/ironfile"
+Repository = "https://github.com/magiclamp-ai/ironfile.git"
+Issues = "https://github.com/magiclamp-ai/ironfile/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

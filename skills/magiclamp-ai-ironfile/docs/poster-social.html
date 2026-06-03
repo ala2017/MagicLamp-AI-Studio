@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta property="og:title" content="IronFile —— 终结 AI 代码无故消失、截断、损坏的时代">
+<meta property="og:description" content="每次 AI 写文件，先冷备份，再落盘，当场验证。文件存得不对，立刻无缝回滚。不修不补，从源头杜绝任何损坏文件进入你的视线。">
+<meta property="og:type" content="website">
+<title>IronFile — 文件安全守卫</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0c;
+  --surface: #16161a;
+  --border: #242429;
+  --text: #e8e8ec;
+  --dim: #7a7a88;
+  --orange: #f04a00;
+  --ember: #ff6b35;
+  --green: #7ec87e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif;
+  line-height: 1.7;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(240,74,0,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 70%, rgba(240,74,0,0.03) 0%, transparent 40%);
+  pointer-events: none; z-index: 0;
+}
+
+.page {
+  position: relative; z-index: 1;
+}
+
+/* ═══════ HERO ═══════ */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4rem 1.5rem 3rem;
+}
+
+.hero-emblem {
+  font-size: 5rem;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 50px rgba(240,74,0,0.4));
+}
+
+.hero h1 {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(2.5rem, 10vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  background: linear-gradient(180deg, #f0f0f8 0%, #a0a0b8 60%, #505068 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 1.5rem;
+}
+
+.hero .tagline {
+  font-family: 'Orbitron', monospace;
+  font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+  color: var(--orange);
+  letter-spacing: 0.12em;
+  margin-bottom: 3rem;
+}
+
+/* ── 开篇文案区 —— 分层排版 ── */
+.opening {
+  max-width: 680px;
+  margin: 0 auto 3rem;
+}
+
+.opening .scene {
+  background: var(--surface);
+  border-left: 3px solid var(--orange);
+  padding: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.opening .scene p {
+  font-size: 1rem;
+  line-height: 1.9;
+  color: #d0d0dc;
+}
+
+.opening .scene .highlight {
+  color: var(--ember);
+  font-weight: 700;
+}
+
+.opening .verdict {
+  text-align: center;
+  padding: 1.5rem 0;
+}
+
+.opening .verdict p {
+  font-size: 0.95rem;
+  color: var(--dim);
+  line-height: 1.9;
+}
+
+.opening .verdict .accent {
+  color: var(--ember);
+  font-weight: 700;
+}
+
+.opening .solution {
+  text-align: center;
+  padding: 1.5rem 2rem;
+  border: 1px solid var(--orange);
+}
+
+.opening .solution h2 {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  letter-spacing: 0.15em;
+  color: var(--orange);
+  margin-bottom: 1rem;
+}
+
+.opening .solution p {
+  font-size: 0.95rem;
+  color: #d0d0dc;
+  line-height: 1.9;
+}
+
+.opening .solution .proto {
+  display: inline-block;
+  background: rgba(240,74,0,0.12);
+  color: var(--ember);
+  padding: 0.2em 0.6em;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+/* ── 命令栏 ── */
+.cmd {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 1rem;
+  margin-bottom: 3rem;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  padding: 1rem 2rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.cmd span { white-space: nowrap; }
+.cmd .orange { color: var(--orange); }
+.cmd .str { color: var(--green); }
+.cmd .dim { color: var(--dim); font-size: 0.65rem; }
+
+/* ── 场景图标 ── */
+.icons-row {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.icons-row .it {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.icons-row .it .ico {
+  font-size: 1.5rem;
+  width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.icons-row .it .lbl {
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--dim);
+}
+
+/* ── 三层 ── */
+.layers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  max-width: 720px;
+  width: 100%;
+  margin: 0 auto 3rem;
+}
+
+.layers .ly {
+  text-align: center;
+  padding: 1.2rem 0.8rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.layers .ly .num {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--orange);
+  line-height: 1;
+}
+
+.layers .ly .name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0.3rem 0;
+}
+
+.layers .ly .desc {
+  font-size: 0.7rem;
+  color: var(--dim);
+  line-height: 1.4;
+}
+
+/* ── 数据 ── */
+.stats {
+  display: flex;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 3rem;
+}
+
+.stats .st {
+  text-align: center;
+}
+
+.stats .st .val {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: var(--orange);
+  line-height: 1;
+}
+
+.stats .st .val.g { color: var(--green); }
+
+.stats .st .lbl {
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--dim);
+  margin-top: 0.2rem;
+}
+
+/* ── 安装 ── */
+.install {
+  max-width: 580px;
+  margin: 0 auto 4rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 1.2rem 1.5rem;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  text-align: left;
+  color: var(--dim);
+  line-height: 1.9;
+}
+
+.install .green { color: var(--green); }
+.install .orange { color: var(--ember); }
+
+/* ── 出品 ── */
+.producer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.producer .brand {
+  font-family: 'Orbitron', monospace;
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: var(--dim);
+  margin-bottom: 0.5rem;
+}
+
+.producer .by {
+  font-size: 0.8rem;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+}
+
+.producer .links {
+  margin-top: 1.2rem;
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.producer .links a {
+  color: var(--dim);
+  text-decoration: none;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+}
+
+/* ── 响应式 ── */
+@media (max-width: 600px) {
+  .layers { grid-template-columns: 1fr; }
+  .hero-emblem { font-size: 3.5rem; }
+  .opening .scene { padding: 1.2rem 1.2rem; }
+  .opening .scene p, .opening .verdict p, .opening .solution p { font-size: 0.9rem; }
+  .cmd { font-size: 0.6rem; gap: 0.3rem 0.6rem; padding: 0.8rem 1rem; }
+  .hero { padding: 2rem 1rem 2rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- ═══════ HERO ═══════ -->
+<main class="hero">
+  <div class="hero-emblem">🛡️</div>
+  <h1>IronFile</h1>
+  <p class="tagline">终结 AI 代码无故消失、截断、损坏的时代</p>
+
+  <!-- 开篇文案 —— 分层排版 -->
+  <div class="opening">
+
+    <div class="scene">
+      <p>
+        你一定也遇到过这种绝望时刻：<br>
+        AI 核心代码写到一半，会话突然断了 ——
+        <span class="highlight">要不是网络波动，要不是额度溢出。</span>
+      </p>
+      <p style="margin-top:0.8rem;">
+        当你恢复对话，几千行代码要么<span class="highlight">直接归零</span>，
+        要么被<span class="highlight">无情截断</span>，
+        要么被另一个会话<span class="highlight">踩得稀碎</span>。
+      </p>
+    </div>
+
+    <div class="verdict">
+      <p>
+        这不是操作失误，也不是单一 AI 工具的偶发 Bug。<br>
+        而是目前的开发工具链中，<br>
+        普遍缺乏一道<span class="accent">死守在 AI 与文件系统之间的底层安全闸门</span>。
+      </p>
+    </div>
+
+    <div class="solution">
+      <h2>IRONFILE —— 终结这场失控</h2>
+      <p>
+        每次 AI 执行文件写入，IronFile 强制执行<br>
+        <span class="proto">先冷备份</span> → <span class="proto">再行落盘</span> → <span class="proto">当场验证</span><br>
+        的原子保护协议。
+      </p>
+      <p style="margin-top:0.8rem;">
+        一旦发现语法破损或文件截断，<br>
+        立刻无缝回滚至备份状态。<br>
+        <strong>不修不补，从源头杜绝任何损坏文件进入你的视线。</strong>
+      </p>
+    </div>
+
+  </div>
+
+  <!-- 命令 -->
+  <div class="cmd">
+    <span class="orange">ironfile</span> <span>edit</span> <span class="str">file.py</span> <span class="str">"old"</span> <span class="str">"new"</span>
+    <span class="dim"># 先备份再写，写完验证</span>
+  </div>
+
+  <!-- 场景 -->
+  <div class="icons-row">
+    <div class="it"><div class="ico">💔</div><span class="lbl">写一半断了</span></div>
+    <div class="it"><div class="ico">📄</div><span class="lbl">文件变空</span></div>
+    <div class="it"><div class="ico">✂️</div><span class="lbl">被截断了</span></div>
+    <div class="it"><div class="ico">🔄</div><span class="lbl">被覆盖了</span></div>
+    <div class="it"><div class="ico">🪞</div><span class="lbl">只剩一半</span></div>
+    <div class="it"><div class="ico">🤷</div><span class="lbl">恢复不了</span></div>
+  </div>
+
+  <!-- 三层防线 -->
+  <div class="layers">
+    <div class="ly">
+      <div class="num">L1</div>
+      <div class="name">原子编辑</div>
+      <div class="desc">备份→写入→验证→回滚</div>
+    </div>
+    <div class="ly">
+      <div class="num">L2</div>
+      <div class="name">Git 快照</div>
+      <div class="desc">多文件任务前后自动 commit</div>
+    </div>
+    <div class="ly">
+      <div class="num">L3</div>
+      <div class="name">完整性扫描</div>
+      <div class="desc">会话启动时全项目体检</div>
+    </div>
+  </div>
+
+  <!-- 数据 -->
+  <div class="stats">
+    <div class="st"><div class="val">&lt;50ms</div><div class="lbl">写入延迟</div></div>
+    <div class="st"><div class="val g">56</div><div class="lbl">测试通过</div></div>
+    <div class="st"><div class="val">15</div><div class="lbl">安全修复</div></div>
+    <div class="st"><div class="val g">0</div><div class="lbl">文件丢失</div></div>
+  </div>
+
+  <!-- 安装 -->
+  <div class="install">
+    <span class="green"># 30 秒安装</span><br>
+    git clone https://github.com/ala2017/MagicLamp-AI-Studio.git<br>
+    <span class="orange">cd</span> MagicLamp-AI-Studio/skills/magiclamp-ai-ironfile<br>
+    pip install -e . && <span class="orange">ironfile</span> --version
+  </div>
+</main>
+
+<!-- ═══════ 出品 ═══════ -->
+<footer class="producer">
+  <div class="brand">IRONFILE</div>
+  <div class="by">神灯智库 · 神灯AI工作室 出品</div>
+  <div class="links">
+    <a href="https://github.com/ala2017/MagicLamp-AI-Studio/tree/main/skills/magiclamp-ai-ironfile">GitHub</a>
+    <a href="#">PRD</a>
+    <a href="#">安全报告</a>
+    <a href="#">协议规范</a>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>

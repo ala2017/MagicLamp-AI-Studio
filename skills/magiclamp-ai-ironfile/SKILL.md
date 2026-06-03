@@ -1,6 +1,7 @@
 ---
 name: magiclamp-ai-ironfile
-description: "终结 AI 代码无故消失、截断、损坏的时代。IronFile 是死守在 AI 与文件系统之间的底层安全闸门——每次 AI 写文件，先冷备份、再行落盘、当场验证，文件存得不对立刻无缝回滚。当你让 AI 编写、修改、编辑、修复、重构任何文件时，当多文件任务前需要打 checkpoint 时，当会话中断后恢复时，使用此 skill。IronFile 是你的文件安全防线——不要跳过它。"
+description: "IronFile - AI file safety middleware. Use ironfile edit for safe file editing (backup-write-verify-rollback). Run checkpoint before multi-file tasks. Run scan on session start. NEVER skip this skill when editing, writing, or refactoring files."
+---
 
 # magiclamp-ai-ironfile
 
